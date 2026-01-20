@@ -56,7 +56,7 @@ namespace ProiectSupermarket
         private void btnDiscount_Click(object sender, EventArgs e)
         {
             slide(btnDiscount);
-            Discount discount = new Discount();
+            Discount discount = new Discount(this);
             discount.lblId.Text = id;
             discount.txtTotalPrice.Text = price;
             discount.ShowDialog();
