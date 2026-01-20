@@ -55,6 +55,7 @@ namespace ProiectSupermarket
                 {
                     MessageBox.Show("Please enter stock in by name", "POS", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     stockIn.txtStockInBy.Focus();
+                    this.Dispose();
                     return;
                 }
 

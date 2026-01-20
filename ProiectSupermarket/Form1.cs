@@ -99,6 +99,7 @@ namespace ProiectSupermarket
 
         private void btnStockEntry_Click(object sender, EventArgs e)
         {
+            openChildForm(new StockIn());
             hideSubmenu();
         }
 

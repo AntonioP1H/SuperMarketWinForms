@@ -28,12 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             panel1 = new Panel();
             label2 = new Label();
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
-            btnSave = new Button();
+            btnEnter = new Button();
             dgvStockIn = new DataGridView();
             Column1 = new DataGridViewTextBoxColumn();
             Column9 = new DataGridViewTextBoxColumn();
@@ -105,7 +105,7 @@
             // 
             // tabPage1
             // 
-            tabPage1.Controls.Add(btnSave);
+            tabPage1.Controls.Add(btnEnter);
             tabPage1.Controls.Add(dgvStockIn);
             tabPage1.Controls.Add(panel2);
             tabPage1.Location = new Point(4, 34);
@@ -116,33 +116,34 @@
             tabPage1.Text = "Stock In";
             tabPage1.UseVisualStyleBackColor = true;
             // 
-            // btnSave
+            // btnEnter
             // 
-            btnSave.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnSave.BackColor = Color.FromArgb(55, 0, 179);
-            btnSave.FlatAppearance.BorderSize = 0;
-            btnSave.FlatStyle = FlatStyle.Flat;
-            btnSave.ForeColor = SystemColors.ControlLightLight;
-            btnSave.Location = new Point(930, 405);
-            btnSave.Name = "btnSave";
-            btnSave.Size = new Size(136, 41);
-            btnSave.TabIndex = 11;
-            btnSave.Text = "Enter";
-            btnSave.UseVisualStyleBackColor = false;
+            btnEnter.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnEnter.BackColor = Color.FromArgb(55, 0, 179);
+            btnEnter.FlatAppearance.BorderSize = 0;
+            btnEnter.FlatStyle = FlatStyle.Flat;
+            btnEnter.ForeColor = SystemColors.ControlLightLight;
+            btnEnter.Location = new Point(930, 405);
+            btnEnter.Name = "btnEnter";
+            btnEnter.Size = new Size(136, 41);
+            btnEnter.TabIndex = 11;
+            btnEnter.Text = "Enter";
+            btnEnter.UseVisualStyleBackColor = false;
+            btnEnter.Click += btnEnter_Click;
             // 
             // dgvStockIn
             // 
             dgvStockIn.AllowUserToAddRows = false;
             dgvStockIn.BackgroundColor = SystemColors.Control;
             dgvStockIn.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
-            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = Color.FromArgb(55, 0, 179);
-            dataGridViewCellStyle3.Font = new Font("Franklin Gothic Medium", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle3.ForeColor = SystemColors.InactiveBorder;
-            dataGridViewCellStyle3.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.True;
-            dgvStockIn.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = Color.FromArgb(55, 0, 179);
+            dataGridViewCellStyle1.Font = new Font("Franklin Gothic Medium", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle1.ForeColor = SystemColors.InactiveBorder;
+            dataGridViewCellStyle1.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
+            dgvStockIn.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             dgvStockIn.ColumnHeadersHeight = 30;
             dgvStockIn.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             dgvStockIn.Columns.AddRange(new DataGridViewColumn[] { Column1, Column9, Column10, Column2, Column4, Column5, Column6, Column7, Column8, Delete });
@@ -154,6 +155,7 @@
             dgvStockIn.RowHeadersWidth = 51;
             dgvStockIn.Size = new Size(1068, 211);
             dgvStockIn.TabIndex = 4;
+            dgvStockIn.CellContentClick += dgvStockIn_CellContentClick;
             // 
             // Column1
             // 
@@ -450,7 +452,7 @@
         private Label label7;
         private Label label6;
         private Label label5;
-        public Button btnSave;
+        public Button btnEnter;
         public LinkLabel linGenerate;
         public LinkLabel linProduct;
         public DateTimePicker dtStockIn;

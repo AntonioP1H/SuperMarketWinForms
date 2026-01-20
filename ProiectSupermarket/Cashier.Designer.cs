@@ -53,6 +53,7 @@
             pictureBox1 = new PictureBox();
             lblname = new Label();
             panel5 = new Panel();
+            txtQty = new TextBox();
             lblTimer = new Label();
             lblVatable = new Label();
             lblVat = new Label();
@@ -62,7 +63,7 @@
             label9 = new Label();
             label8 = new Label();
             label7 = new Label();
-            textBox1 = new TextBox();
+            txtBarcode = new TextBox();
             label6 = new Label();
             lblDate = new Label();
             label5 = new Label();
@@ -70,7 +71,6 @@
             label2 = new Label();
             lblDisplayTotal = new Label();
             dgvCash = new DataGridView();
-            timer1 = new System.Windows.Forms.Timer(components);
             Column1 = new DataGridViewTextBoxColumn();
             Column9 = new DataGridViewTextBoxColumn();
             Column2 = new DataGridViewTextBoxColumn();
@@ -82,6 +82,7 @@
             colAdd = new DataGridViewImageColumn();
             colReduce = new DataGridViewImageColumn();
             Delete = new DataGridViewImageColumn();
+            timer1 = new System.Windows.Forms.Timer(components);
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
@@ -124,7 +125,6 @@
             btnLogout.Size = new Size(202, 43);
             btnLogout.TabIndex = 8;
             btnLogout.Text = "Logout";
-            btnLogout.TextAlign = ContentAlignment.MiddleRight;
             btnLogout.UseVisualStyleBackColor = true;
             btnLogout.Click += btnLogout_Click;
             // 
@@ -337,6 +337,7 @@
             // 
             // panel5
             // 
+            panel5.Controls.Add(txtQty);
             panel5.Controls.Add(lblTimer);
             panel5.Controls.Add(lblVatable);
             panel5.Controls.Add(lblVat);
@@ -346,7 +347,7 @@
             panel5.Controls.Add(label9);
             panel5.Controls.Add(label8);
             panel5.Controls.Add(label7);
-            panel5.Controls.Add(textBox1);
+            panel5.Controls.Add(txtBarcode);
             panel5.Controls.Add(label6);
             panel5.Controls.Add(lblDate);
             panel5.Controls.Add(label5);
@@ -358,6 +359,15 @@
             panel5.Name = "panel5";
             panel5.Size = new Size(277, 703);
             panel5.TabIndex = 3;
+            // 
+            // txtQty
+            // 
+            txtQty.Location = new Point(174, 287);
+            txtQty.Name = "txtQty";
+            txtQty.Size = new Size(58, 30);
+            txtQty.TabIndex = 17;
+            txtQty.Text = "1";
+            txtQty.TextAlign = HorizontalAlignment.Center;
             // 
             // lblTimer
             // 
@@ -444,12 +454,13 @@
             label7.TabIndex = 7;
             label7.Text = "Sales Total :";
             // 
-            // textBox1
+            // txtBarcode
             // 
-            textBox1.Location = new Point(14, 286);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(139, 30);
-            textBox1.TabIndex = 6;
+            txtBarcode.Location = new Point(14, 286);
+            txtBarcode.Name = "txtBarcode";
+            txtBarcode.Size = new Size(139, 30);
+            txtBarcode.TabIndex = 6;
+            txtBarcode.TextChanged += txtBarcode_TextChanged;
             // 
             // label6
             // 
@@ -536,11 +547,7 @@
             dgvCash.RowHeadersWidth = 51;
             dgvCash.Size = new Size(995, 703);
             dgvCash.TabIndex = 5;
-            // 
-            // timer1
-            // 
-            timer1.Enabled = true;
-            timer1.Tick += timer1_Tick;
+            dgvCash.SelectionChanged += dgvCash_SelectionChanged;
             // 
             // Column1
             // 
@@ -640,6 +647,11 @@
             Delete.Name = "Delete";
             Delete.Width = 6;
             // 
+            // timer1
+            // 
+            timer1.Enabled = true;
+            timer1.Tick += timer1_Tick;
+            // 
             // Cashier
             // 
             AutoScaleDimensions = new SizeF(11F, 25F);
@@ -700,7 +712,6 @@
         private Label label9;
         private Label label8;
         private Label label7;
-        private TextBox textBox1;
         private Label label6;
         private Label lblDate;
         private Label label5;
@@ -722,5 +733,7 @@
         private DataGridViewImageColumn colAdd;
         private DataGridViewImageColumn colReduce;
         private DataGridViewImageColumn Delete;
+        private TextBox txtQty;
+        public TextBox txtBarcode;
     }
 }
