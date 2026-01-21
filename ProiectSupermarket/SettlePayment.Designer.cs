@@ -264,8 +264,6 @@
         }
 
         #endregion
-
-        private TextBox txtSale;
         private TextBox txtCash;
         private TextBox txtChange;
         private Button btnSeven;
@@ -281,5 +279,6 @@
         private Button btnDZero;
         private Button btnZero;
         private Button btnClear;
+        public TextBox txtSale;
     }
 }

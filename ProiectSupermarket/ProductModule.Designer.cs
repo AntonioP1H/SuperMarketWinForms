@@ -67,9 +67,9 @@
             // 
             // picClose
             // 
-            picClose.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            picClose.Anchor = AnchorStyles.Left;
             picClose.Image = Properties.Resources.Close;
-            picClose.Location = new Point(1057, 9);
+            picClose.Location = new Point(1055, 9);
             picClose.Name = "picClose";
             picClose.Size = new Size(33, 35);
             picClose.TabIndex = 2;
@@ -83,9 +83,9 @@
             label1.ForeColor = SystemColors.ControlLightLight;
             label1.Location = new Point(30, 9);
             label1.Name = "label1";
-            label1.Size = new Size(145, 25);
+            label1.Size = new Size(162, 25);
             label1.TabIndex = 1;
-            label1.Text = "Brand Module";
+            label1.Text = "Product Module";
             // 
             // lblId
             // 

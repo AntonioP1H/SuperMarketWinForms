@@ -65,16 +65,31 @@ namespace ProiectSupermarket
         private void btnSettle_Click(object sender, EventArgs e)
         {
             slide(btnSettle);
+            SettlePayment settle = new SettlePayment(this);
+            settle.txtSale.Text = lblDisplayTotal.Text;
+            settle.ShowDialog();
         }
 
         private void btnClear_Click(object sender, EventArgs e)
         {
             slide(btnClear);
+            if (MessageBox.Show("Remove all items from cart?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                cn.Open();
+                cm = new SqlCommand("DELETE FROM tbCart WHERE transno LIKE '" + lblTranNo.Text + "'", cn);
+                cm.ExecuteNonQuery();
+                cn.Close();
+                MessageBox.Show("All items have been removed from cart", "Remove item", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LoadCart();
+            }
         }
 
         private void btnDSales_Click(object sender, EventArgs e)
         {
             slide(btnDSales);
+            DailySale dailysale = new DailySale();
+            dailysale.solduser = lblUsername.Text;
+            dailysale.ShowDialog();
         }
 
         private void btnPass_Click(object sender, EventArgs e)
@@ -85,6 +100,17 @@ namespace ProiectSupermarket
         private void btnLogout_Click(object sender, EventArgs e)
         {
             slide(btnLogout);
+            if(dgvCash.Rows.Count > 0)
+            {
+                MessageBox.Show("Finish transactions before exiting?", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (MessageBox.Show("Quit App?", "Quit", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                this.Hide();
+                Login login = new Login();
+                login.ShowDialog();
+            }
         }
         #endregion Buttons
 
@@ -92,6 +118,7 @@ namespace ProiectSupermarket
         {
             try
             {
+                Boolean hascart = false;
                 int i = 0;
                 double total = 0;
                 double discount = 0;
@@ -107,12 +134,15 @@ namespace ProiectSupermarket
                     total += Convert.ToDouble(dr["total"].ToString());
                     discount += Convert.ToDouble(dr["disc"].ToString());
                     dgvCash.Rows.Add(i, dr["id"].ToString(), dr["pcode"].ToString(), dr["pdesc"].ToString(), dr["price"].ToString(), dr["qty"].ToString(), dr["disc"].ToString(), double.Parse(dr["total"].ToString()).ToString("#,##0.00"));
+                    hascart = true;
                 }
                 dr.Close();
                 cn.Close();
                 lblSalesTotal.Text = total.ToString("#,##0.00");
                 lblDiscount.Text = discount.ToString("#,##0.00");
                 GetCartTotal();
+                if (hascart) { btnClear.Enabled = true; btnSettle.Enabled = true; btnDiscount.Enabled = true; }
+                else { btnClear.Enabled = false; btnSettle.Enabled = false; btnDiscount.Enabled = false; }
             }
             catch (Exception ex)
             {
@@ -174,33 +204,36 @@ namespace ProiectSupermarket
         {
             try
             {
-                if (txtBarcode.Text == string.Empty) return;
+                if (string.IsNullOrWhiteSpace(txtBarcode.Text)) return;
+                if (txtBarcode.Text.Length < 5) return;
                 else
                 {
-                    int _qty;
+                    int _qty = int.Parse(txtQty.Text);
                     string _pcode;
                     double _price;
                     cn.Open();
-                    cm = new SqlCommand("SELECT * FROM tbProduct WHERE barcode LIKE '" + txtBarcode.Text + "'", cn);
+                    cm = new SqlCommand("SELECT pcode, price FROM tbProduct WHERE barcode = @barcode", cn);
+                    cm.Parameters.AddWithValue("@barcode", txtBarcode.Text);
                     dr = cm.ExecuteReader();
-                    dr.Read();
-                    if (dr.HasRows)
+                    if (dr.Read())
                     {
-                        _qty = int.Parse(txtQty.ToString());
                         _pcode = dr["pcode"].ToString();
-                        _price = double.Parse(dr["price"].ToString());
-                        AddToCart(_pcode, _price, _qty);
-                        dr.Close();
-                        cn.Close();
-
+                        _price = Convert.ToDouble(dr["price"]);
+                    }
+                    else
+                    {
+                        return;
                     }
                     dr.Close();
                     cn.Close();
+                    AddToCart(_pcode, _price, _qty);
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+                dr.Close();
+                cn.Close();
             }
         }
         public void AddToCart(string _pcode, double _price, int _qty)
@@ -234,7 +267,7 @@ namespace ProiectSupermarket
                     }
                     cn.Open();
                     cm = new SqlCommand("Update tbCart set qty = (qty + " + _qty + ") WHERE id= '" + id + "'", cn);
-                    cm.ExecuteReader();
+                    cm.ExecuteNonQuery();
                     cn.Close();
                     txtBarcode.SelectionStart = 0;
                     txtBarcode.SelectionLength = txtBarcode.Text.Length;
@@ -272,6 +305,57 @@ namespace ProiectSupermarket
             int i = dgvCash.CurrentRow.Index;
             id = dgvCash[1, i].Value.ToString();
             price = dgvCash[7, i].Value.ToString();
+        }
+
+        private void dgvCash_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            int i = 0;
+            string colName = dgvCash.Columns[e.ColumnIndex].Name;
+            if (colName == "Delete")
+            {
+                if (MessageBox.Show("Remove item from cart?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    dbcon.ExecuteQuery("DELETE FROM tbCart WHERE id LIKE '" + dgvCash.Rows[e.RowIndex].Cells[1].Value.ToString() + "'");
+                    MessageBox.Show("Item have been removed from cart", "Remove item", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LoadCart();
+                }
+            }
+            else if (colName == "colAdd")
+            {
+                cn.Open();
+                cm = new SqlCommand("SELECT SUM(qty) as qty FROM tbCart WHERE pcode LIKE '" + dgvCash.Rows[e.RowIndex].Cells[2].Value.ToString() + "' GROUP BY pcode", cn);
+                i = int.Parse(cm.ExecuteScalar().ToString());
+                cn.Close();
+                if (int.Parse(dgvCash.Rows[e.RowIndex].Cells[5].Value.ToString()) < i)
+                {
+                    dbcon.ExecuteQuery("UPDATE tbCart SET qty = qty + " + int.Parse(txtQty.Text) + " WHERE transno =" + lblTranNo.Text +" AND pcode = '" 
+                        + dgvCash.Rows[e.RowIndex].Cells[2].Value.ToString() +"'");
+                    LoadCart();
+                }
+                else
+                {
+                    MessageBox.Show("Remaining qty on hand is " + i + "!", "Out of Stock", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
+            else if (colName == "colReduce")
+            {
+                cn.Open();
+                cm = new SqlCommand("SELECT SUM(qty) as qty FROM tbCart WHERE pcode LIKE '" + dgvCash.Rows[e.RowIndex].Cells[2].Value.ToString() + "' GROUP BY pcode", cn);
+                i = int.Parse(cm.ExecuteScalar().ToString());
+                cn.Close();
+                if (i>1)
+                {
+                    dbcon.ExecuteQuery("UPDATE tbCart SET qty = qty - '" + int.Parse(txtQty.Text) + "' WHERE transno =" + lblTranNo.Text + " AND pcode = '"
+                        + dgvCash.Rows[e.RowIndex].Cells[2].Value.ToString() + "'");
+                    LoadCart();
+                }
+                else
+                {
+                    MessageBox.Show("Remaining qty on cart is " + i + "!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
         }
     }
 }

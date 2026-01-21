@@ -36,7 +36,8 @@ namespace ProiectSupermarket
 
         private void txtQty_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if((e.KeyChar==13) && (txtQty.Text != string.Empty))
+            if (e.KeyChar == 27) { this.Dispose(); }
+            else if ((e.KeyChar==13) && (txtQty.Text != string.Empty))
             {
                 try
                 {

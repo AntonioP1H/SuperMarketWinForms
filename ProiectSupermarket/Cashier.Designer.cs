@@ -133,8 +133,7 @@
             btnPass.Dock = DockStyle.Top;
             btnPass.FlatAppearance.BorderSize = 0;
             btnPass.FlatStyle = FlatStyle.Flat;
-            btnPass.ForeColor = Color.White;
-            btnPass.Image = Properties.Resources.Password;
+            btnPass.ForeColor = Color.FromArgb(55, 0, 179);
             btnPass.ImageAlign = ContentAlignment.MiddleLeft;
             btnPass.Location = new Point(0, 423);
             btnPass.Name = "btnPass";
@@ -143,6 +142,7 @@
             btnPass.Text = "Change Password";
             btnPass.TextAlign = ContentAlignment.MiddleRight;
             btnPass.UseVisualStyleBackColor = true;
+            btnPass.Visible = false;
             btnPass.Click += btnPass_Click;
             // 
             // btnDSales
@@ -165,6 +165,7 @@
             // btnClear
             // 
             btnClear.Dock = DockStyle.Top;
+            btnClear.Enabled = false;
             btnClear.FlatAppearance.BorderSize = 0;
             btnClear.FlatStyle = FlatStyle.Flat;
             btnClear.ForeColor = Color.White;
@@ -182,6 +183,7 @@
             // btnSettle
             // 
             btnSettle.Dock = DockStyle.Top;
+            btnSettle.Enabled = false;
             btnSettle.FlatAppearance.BorderSize = 0;
             btnSettle.FlatStyle = FlatStyle.Flat;
             btnSettle.ForeColor = Color.White;
@@ -199,6 +201,7 @@
             // btnDiscount
             // 
             btnDiscount.Dock = DockStyle.Top;
+            btnDiscount.Enabled = false;
             btnDiscount.FlatAppearance.BorderSize = 0;
             btnDiscount.FlatStyle = FlatStyle.Flat;
             btnDiscount.ForeColor = Color.White;
@@ -547,6 +550,7 @@
             dgvCash.RowHeadersWidth = 51;
             dgvCash.Size = new Size(995, 703);
             dgvCash.TabIndex = 5;
+            dgvCash.CellContentClick += dgvCash_CellContentClick;
             dgvCash.SelectionChanged += dgvCash_SelectionChanged;
             // 
             // Column1
@@ -563,7 +567,8 @@
             Column9.HeaderText = "Id";
             Column9.MinimumWidth = 6;
             Column9.Name = "Column9";
-            Column9.Width = 55;
+            Column9.Visible = false;
+            Column9.Width = 125;
             // 
             // Column2
             // 
@@ -701,12 +706,9 @@
         private Button btnLogout;
         private PictureBox pictureBox2;
         private PictureBox pictureBox1;
-        private Label lblname;
         private PictureBox picClose;
         private Panel panelSlide;
-        private DataGridView dgvCash;
         private Label label2;
-        private Label lblDisplayTotal;
         private Label lblSalesTotal;
         private Label label10;
         private Label label9;
@@ -722,6 +724,11 @@
         private System.Windows.Forms.Timer timer1;
         public Label lblUsername;
         public Label lblTranNo;
+        private TextBox txtQty;
+        public TextBox txtBarcode;
+        public DataGridView dgvCash;
+        public Label lblDisplayTotal;
+        public Label lblname;
         private DataGridViewTextBoxColumn Column1;
         private DataGridViewTextBoxColumn Column9;
         private DataGridViewTextBoxColumn Column2;
@@ -733,7 +740,5 @@
         private DataGridViewImageColumn colAdd;
         private DataGridViewImageColumn colReduce;
         private DataGridViewImageColumn Delete;
-        private TextBox txtQty;
-        public TextBox txtBarcode;
     }
 }

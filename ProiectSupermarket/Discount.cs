@@ -22,6 +22,7 @@ namespace ProiectSupermarket
             cn = new SqlConnection(dbcon.myConnection());
             cashier = cash;
             txtDiscount.Focus();
+            this.KeyPreview = true;
         }
 
         private void picClose_Click(object sender, EventArgs e)
@@ -32,6 +33,7 @@ namespace ProiectSupermarket
         private void Discount_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape) { this.Dispose(); }
+            else if (e.KeyCode == Keys.Enter) { btnConfirm.PerformClick(); }
         }
 
         private void txtDiscount_TextChanged(object sender, EventArgs e)

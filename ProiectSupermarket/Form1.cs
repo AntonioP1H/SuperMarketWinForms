@@ -148,6 +148,12 @@ namespace ProiectSupermarket
         private void btnLogout_Click(object sender, EventArgs e)
         {
             hideSubmenu();
+            if (MessageBox.Show("Quit App?", "Quit", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                this.Hide();
+                Login login = new Login();
+                login.ShowDialog();
+            }   
         }
     }
 }

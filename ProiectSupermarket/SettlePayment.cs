@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Data.SqlClient;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -10,9 +11,17 @@ namespace ProiectSupermarket
 {
     public partial class SettlePayment : Form
     {
-        public SettlePayment()
+        SqlConnection cn = new SqlConnection();
+        SqlCommand cm = new SqlCommand();
+        DBConnect dbcon = new DBConnect();
+        SqlDataReader dr;
+        Cashier cashier;
+        public SettlePayment(Cashier cash)
         {
             InitializeComponent();
+            cn = new SqlConnection(dbcon.myConnection());
+            this.KeyPreview = true;
+            cashier = cash;
         }
 
         private void btnOne_Click(object sender, EventArgs e)
@@ -78,7 +87,38 @@ namespace ProiectSupermarket
 
         private void btnEnter_Click(object sender, EventArgs e)
         {
+            try
+            {
+                if( (double.Parse(txtChange.Text)) < 0 || (txtCash.Text.Equals(""))){
+                    MessageBox.Show("Insufficient amount, Please enter the correct amount!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                else
+                {
+                    for (int i = 0; i < cashier.dgvCash.Rows.Count; i++)
+                    {
+                        cn.Open();
+                        cm = new SqlCommand("UPDATE tbProduct SET qty = qty - " + int.Parse(cashier.dgvCash.Rows[i].Cells[5].Value.ToString())
+                            + " WHERE pcode = '" + cashier.dgvCash.Rows[i].Cells[2].Value.ToString() + "'", cn);
+                        cm.ExecuteNonQuery();
+                        cn.Close();
 
+                        cn.Open();
+                        cm = new SqlCommand("UPDATE tbCart SET status = 'Sold' WHERE id = '" + cashier.dgvCash.Rows[i].Cells[1].Value.ToString() + "'", cn);
+                        cm.ExecuteNonQuery();
+                        cn.Close();
+                    }
+                    MessageBox.Show("Payment sucessfully saved!", "Payment", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    cashier.GetTranNo();
+                    cashier.LoadCart();
+                    this.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                cn.Close();
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void txtCash_TextChanged(object sender, EventArgs e)

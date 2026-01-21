@@ -539,9 +539,9 @@
         private Button btnLogout;
         private PictureBox pictureBox1;
         private Label lblRole;
-        private Label lblUsername;
-        private Label lblName;
         private Label lblTitle;
         private Panel panelMain;
+        public Label lblUsername;
+        public Label lblName;
     }
 }

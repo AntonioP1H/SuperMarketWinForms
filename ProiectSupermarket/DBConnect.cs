@@ -26,6 +26,23 @@ namespace ProiectSupermarket
             adapter.Fill(table);
             return table;
         }
+        
+        public void ExecuteQuery(String sql)
+        {
+            try
+            {
+                cn.ConnectionString= myConnection();
+                cn.Open();
+                cm = new SqlCommand(sql, cn);
+                cm.ExecuteNonQuery();
+                cn.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+        }
 
     }
 }
