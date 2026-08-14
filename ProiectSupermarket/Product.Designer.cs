@@ -42,6 +42,9 @@
             Edit = new DataGridViewImageColumn();
             Delete = new DataGridViewImageColumn();
             panel1 = new Panel();
+            txtTotal = new TextBox();
+            button1 = new Button();
+            btnExport = new Button();
             pictureBox1 = new PictureBox();
             txtSearch = new TextBox();
             btnAdd = new Button();
@@ -161,6 +164,9 @@
             // panel1
             // 
             panel1.BackColor = Color.FromArgb(55, 0, 179);
+            panel1.Controls.Add(txtTotal);
+            panel1.Controls.Add(button1);
+            panel1.Controls.Add(btnExport);
             panel1.Controls.Add(pictureBox1);
             panel1.Controls.Add(txtSearch);
             panel1.Controls.Add(btnAdd);
@@ -171,10 +177,48 @@
             panel1.Size = new Size(982, 89);
             panel1.TabIndex = 2;
             // 
+            // txtTotal
+            // 
+            txtTotal.Enabled = false;
+            txtTotal.Location = new Point(499, 33);
+            txtTotal.Name = "txtTotal";
+            txtTotal.Size = new Size(194, 30);
+            txtTotal.TabIndex = 10;
+            // 
+            // button1
+            // 
+            button1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            button1.BackColor = Color.Cyan;
+            button1.FlatAppearance.BorderSize = 0;
+            button1.FlatStyle = FlatStyle.Flat;
+            button1.ForeColor = Color.White;
+            button1.Location = new Point(827, 19);
+            button1.Name = "button1";
+            button1.Size = new Size(85, 58);
+            button1.TabIndex = 9;
+            button1.Text = "Import";
+            button1.UseVisualStyleBackColor = false;
+            button1.Click += button1_Click;
+            // 
+            // btnExport
+            // 
+            btnExport.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnExport.BackColor = Color.Olive;
+            btnExport.FlatAppearance.BorderSize = 0;
+            btnExport.FlatStyle = FlatStyle.Flat;
+            btnExport.ForeColor = Color.White;
+            btnExport.Location = new Point(727, 19);
+            btnExport.Name = "btnExport";
+            btnExport.Size = new Size(84, 58);
+            btnExport.TabIndex = 8;
+            btnExport.Text = "Export";
+            btnExport.UseVisualStyleBackColor = false;
+            btnExport.Click += btnExport_Click;
+            // 
             // pictureBox1
             // 
             pictureBox1.Image = Properties.Resources.Search;
-            pictureBox1.Location = new Point(232, 29);
+            pictureBox1.Location = new Point(188, 31);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(32, 32);
             pictureBox1.TabIndex = 3;
@@ -182,9 +226,9 @@
             // 
             // txtSearch
             // 
-            txtSearch.Location = new Point(270, 31);
+            txtSearch.Location = new Point(226, 33);
             txtSearch.Name = "txtSearch";
-            txtSearch.Size = new Size(495, 30);
+            txtSearch.Size = new Size(241, 30);
             txtSearch.TabIndex = 2;
             txtSearch.TextChanged += txtSearch_TextChanged;
             // 
@@ -193,7 +237,7 @@
             btnAdd.FlatAppearance.BorderSize = 0;
             btnAdd.FlatStyle = FlatStyle.Flat;
             btnAdd.Image = (Image)resources.GetObject("btnAdd.Image");
-            btnAdd.Location = new Point(914, 25);
+            btnAdd.Location = new Point(931, 27);
             btnAdd.Name = "btnAdd";
             btnAdd.Size = new Size(39, 42);
             btnAdd.TabIndex = 1;
@@ -252,5 +296,8 @@
         private DataGridViewTextBoxColumn Column8;
         private DataGridViewImageColumn Edit;
         private DataGridViewImageColumn Delete;
+        private Button btnExport;
+        private Button button1;
+        private TextBox txtTotal;
     }
 }

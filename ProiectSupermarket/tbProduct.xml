@@ -1,0 +1,55 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:MainDataTable="Table" msdata:UseCurrentLocale="true">
+      <xs:complexType>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element name="Table">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="pcode" type="xs:string" minOccurs="0" />
+                <xs:element name="barcode" type="xs:string" minOccurs="0" />
+                <xs:element name="pdesc" type="xs:string" minOccurs="0" />
+                <xs:element name="bid" type="xs:int" minOccurs="0" />
+                <xs:element name="cid" type="xs:int" minOccurs="0" />
+                <xs:element name="price" type="xs:decimal" minOccurs="0" />
+                <xs:element name="qty" type="xs:int" minOccurs="0" />
+                <xs:element name="reorder" type="xs:int" minOccurs="0" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </xs:schema>
+  <Table>
+    <pcode>P001</pcode>
+    <barcode>123456</barcode>
+    <pdesc>Samsung S21+</pdesc>
+    <bid>1</bid>
+    <cid>2</cid>
+    <price>1499.99</price>
+    <qty>11</qty>
+    <reorder>3</reorder>
+  </Table>
+  <Table>
+    <pcode>P002</pcode>
+    <barcode>123457</barcode>
+    <pdesc>Macbook</pdesc>
+    <bid>5</bid>
+    <cid>1</cid>
+    <price>2599.99</price>
+    <qty>3</qty>
+    <reorder>2</reorder>
+  </Table>
+  <Table>
+    <pcode>P003</pcode>
+    <barcode>345672</barcode>
+    <pdesc>Iphone 15</pdesc>
+    <bid>5</bid>
+    <cid>2</cid>
+    <price>499.99</price>
+    <qty>0</qty>
+    <reorder>3</reorder>
+  </Table>
+</NewDataSet>

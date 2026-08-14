@@ -51,13 +51,15 @@ namespace ProiectSupermarket
                 if (MessageBox.Show("Are you sure you want to save this product?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
                     == DialogResult.Yes)
                 {
-                    cm = new SqlCommand("INSERT INTO tbProduct(pcode, barcode, pdesc, bid, cid, price, reorder)Values(@pcode,@barcode,@pdesc,@bid,@cid,@price,@reorder)", cn);
-                    cm.Parameters.Add("@pcode", SqlDbType.VarChar).Value = txtPcode.Text;
+                    cm = new SqlCommand("sp_InsertProduct", cn);
+                    cm.CommandType = CommandType.StoredProcedure;
+                    cm.Parameters.AddWithValue("@pcode", SqlDbType.VarChar).Value = txtPcode.Text;
                     cm.Parameters.Add("@barcode", SqlDbType.VarChar).Value = txtBarcode.Text;
                     cm.Parameters.Add("@pdesc", SqlDbType.VarChar).Value = txtPdesc.Text;
                     cm.Parameters.Add("@bid", SqlDbType.Int).Value = Convert.ToInt32(cboBrand.SelectedValue);
                     cm.Parameters.Add("@cid", SqlDbType.Int).Value = Convert.ToInt32(cboCategory.SelectedValue);
                     cm.Parameters.Add("@price", SqlDbType.Decimal).Value = Convert.ToDecimal(txtPrice.Text);
+                    cm.Parameters.Add("@qty", SqlDbType.Int).Value = 0;
                     cm.Parameters.Add("@reorder", SqlDbType.Int).Value = Convert.ToInt32(UDReOrder.Value);
                     cn.Open();
                     cm.ExecuteNonQuery();
@@ -101,7 +103,7 @@ namespace ProiectSupermarket
                 if (MessageBox.Show("Are you sure you want to update this Record?", "Update Record", MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    cm = new SqlCommand("UPDATE tbProduct SET barcode=@barcode, pdesc=@pdesc, bid=@bid, cid=@cid, price=@price,reorder=@reorder WHERE pcode = @pcode)", cn);
+                    cm = new SqlCommand("UPDATE tbProduct SET barcode=@barcode, pdesc=@pdesc, bid=@bid, cid=@cid, price=@price,reorder=@reorder WHERE pcode = @pcode", cn);
                     cm.Parameters.Add("@pcode", SqlDbType.VarChar).Value = txtPcode.Text;
                     cm.Parameters.Add("@barcode", SqlDbType.VarChar).Value = txtBarcode.Text;
                     cm.Parameters.Add("@pdesc", SqlDbType.VarChar).Value = txtPdesc.Text;

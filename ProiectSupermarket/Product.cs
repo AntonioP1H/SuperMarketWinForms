@@ -1,7 +1,7 @@
-﻿using Microsoft.Data.SqlClient;
-using MetroFramework;
-using MetroFramework.Forms;
+﻿using MetroFramework;
 using MetroFramework.Controls;
+using MetroFramework.Forms;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,14 +14,11 @@ namespace ProiectSupermarket
 {
     public partial class Product : Form
     {
-        SqlConnection cn = new SqlConnection();
-        SqlCommand cm = new SqlCommand();
         DBConnect dbcon = new DBConnect();
-        SqlDataReader dr;
+
         public Product()
         {
             InitializeComponent();
-            cn = new SqlConnection(dbcon.myConnection());
             LoadProduct();
         }
 
@@ -29,23 +26,21 @@ namespace ProiectSupermarket
         {
             int i = 0;
             dgvProduct.Rows.Clear();
-            cm = new SqlCommand(
-            "SELECT p.pcode,p.barcode,p.pdesc,b.brand,c.category,p.price,p.reorder " +
-            "FROM tbProduct AS p " +
-            "INNER JOIN tbBrand AS b ON b.id = p.bid " +
-            "INNER JOIN tbCategory AS c ON c.id = p.cid " +
-            "WHERE CONCAT(p.pdesc, b.brand, c.category) LIKE @search",
-            cn);
-            cm.Parameters.AddWithValue("@search", "%" + txtSearch.Text + "%");
-            cn.Open();
-            dr = cm.ExecuteReader();
-            while (dr.Read())
+
+            DataTable dt = dbcon.GetTable(
+                "SELECT p.pcode, p.barcode, p.pdesc, b.brand, c.category, p.price, p.reorder " +
+                "FROM tbProduct AS p " +
+                "INNER JOIN tbBrand AS b ON b.id = p.bid " +
+                "INNER JOIN tbCategory AS c ON c.id = p.cid " +
+                "WHERE CONCAT(p.pdesc, b.brand, c.category) LIKE @search",
+                new SqlParameter("@search", "%" + txtSearch.Text + "%")
+            );
+
+            foreach (DataRow row in dt.Rows)
             {
                 i++;
-                dgvProduct.Rows.Add(i, dr[0].ToString(), dr[1].ToString(), dr[2].ToString(), dr[3].ToString(), dr[4].ToString(), dr[5].ToString(), dr[6].ToString());
+                dgvProduct.Rows.Add(i, row[0].ToString(), row[1].ToString(), row[2].ToString(), row[3].ToString(), row[4].ToString(), row[5].ToString(), row[6].ToString());
             }
-            dr.Close();
-            cn.Close();
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
@@ -56,17 +51,17 @@ namespace ProiectSupermarket
 
         private void dgvProduct_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.RowIndex < 0) return;
             string colName = dgvProduct.Columns[e.ColumnIndex].Name;
+
             if (colName == "Delete")
             {
                 if (MessageBox.Show("Are you sure you want to delete this Record?", "Delete Record", MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    cn.Open();
-                    cm = new SqlCommand("Delete from tbProduct Where pcode Like '" + dgvProduct[1, e.RowIndex].Value.ToString() + "'", cn);
-                    cm.ExecuteNonQuery();
-                    cn.Close();
-                    MessageBox.Show("Product has been deleted successfuly.", "POS", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    string pcode = dgvProduct[1, e.RowIndex].Value.ToString();
+                    dbcon.ExecuteNonQuery("DELETE FROM tbProduct WHERE pcode = @pcode", new SqlParameter("@pcode", pcode));
+                    MessageBox.Show("Product has been deleted successfully.", "POS", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             else if (colName == "Edit")
@@ -85,12 +80,64 @@ namespace ProiectSupermarket
                 product.btnUpdate.Enabled = true;
                 product.ShowDialog();
             }
+            else if (colName == "Column2")
+            {
+                string id = dgvProduct.Rows[e.RowIndex].Cells[1].Value.ToString();
+                object result = dbcon.ExecuteScalar("sp_GetForPcode", new SqlParameter("@pcode", id));
+
+                if (result != null && result != DBNull.Value)
+                {
+                    decimal total = Convert.ToDecimal(result);
+                    txtTotal.Text = total.ToString();
+                }
+                else
+                {
+                    txtTotal.Text = "0.00";
+                }
+            }
             LoadProduct();
         }
 
         private void txtSearch_TextChanged(object sender, EventArgs e)
         {
             LoadProduct();
+        }
+
+        private void btnExport_Click(object sender, EventArgs e)
+        {
+            DataTable dt = dbcon.GetTable("SELECT * FROM tbProduct");
+            DataSet ds = new DataSet();
+            ds.Tables.Add(dt);
+            ds.WriteXml(@"C:\Users\antonio\source\repos\WinForms\ProiectSupermarket\ProiectSupermarket\tbProduct.xml", XmlWriteMode.WriteSchema);
+            MessageBox.Show("Data exported successfully!", "Export", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string xmlFile = @"C:\Users\antonio\source\repos\WinForms\ProiectSupermarket\ProiectSupermarket\tbProduct.xml";
+            DataSet ds = new DataSet();
+            ds.ReadXml(xmlFile);
+
+            using (SqlConnection sqlcon = new SqlConnection(dbcon.myConnection()))
+            {
+                sqlcon.Open();
+                using (SqlBulkCopy bulk = new SqlBulkCopy(sqlcon))
+                {
+                    bulk.DestinationTableName = "tbProduct";
+                    bulk.ColumnMappings.Add("pcode", "pcode");
+                    bulk.ColumnMappings.Add("barcode", "barcode");
+                    bulk.ColumnMappings.Add("pdesc", "pdesc");
+                    bulk.ColumnMappings.Add("bid", "bid");
+                    bulk.ColumnMappings.Add("cid", "cid");
+                    bulk.ColumnMappings.Add("price", "price");
+                    bulk.ColumnMappings.Add("qty", "qty");
+                    bulk.ColumnMappings.Add("reorder", "reorder");
+
+                    bulk.WriteToServer(ds.Tables[0]);
+                }
+            }
+            LoadProduct();
+            MessageBox.Show("Data imported successfully!", "Import", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

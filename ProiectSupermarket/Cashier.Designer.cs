@@ -135,7 +135,7 @@
             btnPass.FlatStyle = FlatStyle.Flat;
             btnPass.ForeColor = Color.FromArgb(55, 0, 179);
             btnPass.ImageAlign = ContentAlignment.MiddleLeft;
-            btnPass.Location = new Point(0, 423);
+            btnPass.Location = new Point(0, 380);
             btnPass.Name = "btnPass";
             btnPass.Size = new Size(202, 43);
             btnPass.TabIndex = 7;
@@ -153,7 +153,7 @@
             btnDSales.ForeColor = Color.White;
             btnDSales.Image = Properties.Resources.Sales;
             btnDSales.ImageAlign = ContentAlignment.MiddleLeft;
-            btnDSales.Location = new Point(0, 380);
+            btnDSales.Location = new Point(0, 337);
             btnDSales.Name = "btnDSales";
             btnDSales.Size = new Size(202, 43);
             btnDSales.TabIndex = 6;
@@ -171,7 +171,7 @@
             btnClear.ForeColor = Color.White;
             btnClear.Image = Properties.Resources.Cart;
             btnClear.ImageAlign = ContentAlignment.MiddleLeft;
-            btnClear.Location = new Point(0, 337);
+            btnClear.Location = new Point(0, 294);
             btnClear.Name = "btnClear";
             btnClear.Size = new Size(202, 43);
             btnClear.TabIndex = 5;
@@ -189,7 +189,7 @@
             btnSettle.ForeColor = Color.White;
             btnSettle.Image = Properties.Resources.Payment;
             btnSettle.ImageAlign = ContentAlignment.MiddleLeft;
-            btnSettle.Location = new Point(0, 294);
+            btnSettle.Location = new Point(0, 251);
             btnSettle.Name = "btnSettle";
             btnSettle.Size = new Size(202, 43);
             btnSettle.TabIndex = 4;
@@ -207,7 +207,7 @@
             btnDiscount.ForeColor = Color.White;
             btnDiscount.Image = Properties.Resources.Discount;
             btnDiscount.ImageAlign = ContentAlignment.MiddleLeft;
-            btnDiscount.Location = new Point(0, 251);
+            btnDiscount.Location = new Point(0, 208);
             btnDiscount.Name = "btnDiscount";
             btnDiscount.Size = new Size(202, 43);
             btnDiscount.TabIndex = 3;
@@ -224,7 +224,7 @@
             btnSearch.ForeColor = Color.White;
             btnSearch.Image = Properties.Resources.Search;
             btnSearch.ImageAlign = ContentAlignment.MiddleLeft;
-            btnSearch.Location = new Point(0, 208);
+            btnSearch.Location = new Point(0, 165);
             btnSearch.Name = "btnSearch";
             btnSearch.Size = new Size(202, 43);
             btnSearch.TabIndex = 2;
@@ -243,7 +243,7 @@
             btnNTran.ImageAlign = ContentAlignment.MiddleLeft;
             btnNTran.Location = new Point(0, 165);
             btnNTran.Name = "btnNTran";
-            btnNTran.Size = new Size(202, 43);
+            btnNTran.Size = new Size(202, 0);
             btnNTran.TabIndex = 1;
             btnNTran.Text = " New Transaction";
             btnNTran.TextAlign = ContentAlignment.MiddleRight;

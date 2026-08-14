@@ -97,10 +97,10 @@
             btnLogout.FlatAppearance.BorderColor = Color.Red;
             btnLogout.FlatStyle = FlatStyle.Flat;
             btnLogout.ForeColor = SystemColors.ControlLightLight;
-            btnLogout.Location = new Point(0, 825);
+            btnLogout.Location = new Point(0, 808);
             btnLogout.Name = "btnLogout";
             btnLogout.Padding = new Padding(5, 0, 0, 0);
-            btnLogout.Size = new Size(229, 45);
+            btnLogout.Size = new Size(250, 45);
             btnLogout.TabIndex = 11;
             btnLogout.Text = "Logout";
             btnLogout.TextAlign = ContentAlignment.MiddleLeft;
@@ -113,9 +113,9 @@
             panelSubSettings.Controls.Add(btnStore);
             panelSubSettings.Controls.Add(btnUser);
             panelSubSettings.Dock = DockStyle.Top;
-            panelSubSettings.Location = new Point(0, 735);
+            panelSubSettings.Location = new Point(0, 647);
             panelSubSettings.Name = "panelSubSettings";
-            panelSubSettings.Size = new Size(229, 90);
+            panelSubSettings.Size = new Size(250, 90);
             panelSubSettings.TabIndex = 10;
             // 
             // btnStore
@@ -128,7 +128,7 @@
             btnStore.Location = new Point(0, 45);
             btnStore.Name = "btnStore";
             btnStore.Padding = new Padding(20, 0, 0, 0);
-            btnStore.Size = new Size(229, 45);
+            btnStore.Size = new Size(250, 0);
             btnStore.TabIndex = 7;
             btnStore.Text = "Store";
             btnStore.TextAlign = ContentAlignment.MiddleLeft;
@@ -145,7 +145,7 @@
             btnUser.Location = new Point(0, 0);
             btnUser.Name = "btnUser";
             btnUser.Padding = new Padding(20, 0, 0, 0);
-            btnUser.Size = new Size(229, 45);
+            btnUser.Size = new Size(250, 45);
             btnUser.TabIndex = 5;
             btnUser.Text = "User";
             btnUser.TextAlign = ContentAlignment.MiddleLeft;
@@ -159,10 +159,10 @@
             btnSettings.FlatAppearance.BorderColor = Color.Red;
             btnSettings.FlatStyle = FlatStyle.Flat;
             btnSettings.ForeColor = SystemColors.ControlLightLight;
-            btnSettings.Location = new Point(0, 690);
+            btnSettings.Location = new Point(0, 602);
             btnSettings.Name = "btnSettings";
             btnSettings.Padding = new Padding(5, 0, 0, 0);
-            btnSettings.Size = new Size(229, 45);
+            btnSettings.Size = new Size(250, 45);
             btnSettings.TabIndex = 9;
             btnSettings.Text = "Settings";
             btnSettings.TextAlign = ContentAlignment.MiddleLeft;
@@ -175,9 +175,9 @@
             panelSubRecord.Controls.Add(btnPosRecord);
             panelSubRecord.Controls.Add(buttonSaleHistory);
             panelSubRecord.Dock = DockStyle.Top;
-            panelSubRecord.Location = new Point(0, 600);
+            panelSubRecord.Location = new Point(0, 555);
             panelSubRecord.Name = "panelSubRecord";
-            panelSubRecord.Size = new Size(229, 90);
+            panelSubRecord.Size = new Size(250, 47);
             panelSubRecord.TabIndex = 8;
             // 
             // btnPosRecord
@@ -190,7 +190,7 @@
             btnPosRecord.Location = new Point(0, 45);
             btnPosRecord.Name = "btnPosRecord";
             btnPosRecord.Padding = new Padding(20, 0, 0, 0);
-            btnPosRecord.Size = new Size(229, 45);
+            btnPosRecord.Size = new Size(250, 0);
             btnPosRecord.TabIndex = 7;
             btnPosRecord.Text = "POS Record";
             btnPosRecord.TextAlign = ContentAlignment.MiddleLeft;
@@ -207,7 +207,7 @@
             buttonSaleHistory.Location = new Point(0, 0);
             buttonSaleHistory.Name = "buttonSaleHistory";
             buttonSaleHistory.Padding = new Padding(20, 0, 0, 0);
-            buttonSaleHistory.Size = new Size(229, 45);
+            buttonSaleHistory.Size = new Size(250, 45);
             buttonSaleHistory.TabIndex = 5;
             buttonSaleHistory.Text = "Sale History";
             buttonSaleHistory.TextAlign = ContentAlignment.MiddleLeft;
@@ -221,10 +221,10 @@
             btnRecord.FlatAppearance.BorderColor = Color.Red;
             btnRecord.FlatStyle = FlatStyle.Flat;
             btnRecord.ForeColor = SystemColors.ControlLightLight;
-            btnRecord.Location = new Point(0, 555);
+            btnRecord.Location = new Point(0, 510);
             btnRecord.Name = "btnRecord";
             btnRecord.Padding = new Padding(5, 0, 0, 0);
-            btnRecord.Size = new Size(229, 45);
+            btnRecord.Size = new Size(250, 45);
             btnRecord.TabIndex = 7;
             btnRecord.Text = "Record";
             btnRecord.TextAlign = ContentAlignment.MiddleLeft;
@@ -238,10 +238,10 @@
             btnSupplier.FlatAppearance.BorderColor = Color.Red;
             btnSupplier.FlatStyle = FlatStyle.Flat;
             btnSupplier.ForeColor = SystemColors.ControlLightLight;
-            btnSupplier.Location = new Point(0, 510);
+            btnSupplier.Location = new Point(0, 465);
             btnSupplier.Name = "btnSupplier";
             btnSupplier.Padding = new Padding(5, 0, 0, 0);
-            btnSupplier.Size = new Size(229, 45);
+            btnSupplier.Size = new Size(250, 45);
             btnSupplier.TabIndex = 6;
             btnSupplier.Text = "Supplier";
             btnSupplier.TextAlign = ContentAlignment.MiddleLeft;
@@ -254,9 +254,9 @@
             panelSubStock.Controls.Add(btnStockAdjustment);
             panelSubStock.Controls.Add(btnStockEntry);
             panelSubStock.Dock = DockStyle.Top;
-            panelSubStock.Location = new Point(0, 420);
+            panelSubStock.Location = new Point(0, 375);
             panelSubStock.Name = "panelSubStock";
-            panelSubStock.Size = new Size(229, 90);
+            panelSubStock.Size = new Size(250, 90);
             panelSubStock.TabIndex = 5;
             // 
             // btnStockAdjustment
@@ -269,7 +269,7 @@
             btnStockAdjustment.Location = new Point(0, 45);
             btnStockAdjustment.Name = "btnStockAdjustment";
             btnStockAdjustment.Padding = new Padding(20, 0, 0, 0);
-            btnStockAdjustment.Size = new Size(229, 45);
+            btnStockAdjustment.Size = new Size(250, 45);
             btnStockAdjustment.TabIndex = 6;
             btnStockAdjustment.Text = "Stock Adjustment";
             btnStockAdjustment.TextAlign = ContentAlignment.MiddleLeft;
@@ -286,7 +286,7 @@
             btnStockEntry.Location = new Point(0, 0);
             btnStockEntry.Name = "btnStockEntry";
             btnStockEntry.Padding = new Padding(20, 0, 0, 0);
-            btnStockEntry.Size = new Size(229, 45);
+            btnStockEntry.Size = new Size(250, 45);
             btnStockEntry.TabIndex = 5;
             btnStockEntry.Text = "StockEntry";
             btnStockEntry.TextAlign = ContentAlignment.MiddleLeft;
@@ -300,10 +300,10 @@
             btnInStock.FlatAppearance.BorderColor = Color.Red;
             btnInStock.FlatStyle = FlatStyle.Flat;
             btnInStock.ForeColor = SystemColors.ControlLightLight;
-            btnInStock.Location = new Point(0, 375);
+            btnInStock.Location = new Point(0, 330);
             btnInStock.Name = "btnInStock";
             btnInStock.Padding = new Padding(5, 0, 0, 0);
-            btnInStock.Size = new Size(229, 45);
+            btnInStock.Size = new Size(250, 45);
             btnInStock.TabIndex = 4;
             btnInStock.Text = "In Stock";
             btnInStock.TextAlign = ContentAlignment.MiddleLeft;
@@ -316,9 +316,9 @@
             panelSubProduct.Controls.Add(btnCategory);
             panelSubProduct.Controls.Add(btnProductList);
             panelSubProduct.Dock = DockStyle.Top;
-            panelSubProduct.Location = new Point(0, 240);
+            panelSubProduct.Location = new Point(0, 195);
             panelSubProduct.Name = "panelSubProduct";
-            panelSubProduct.Size = new Size(229, 135);
+            panelSubProduct.Size = new Size(250, 135);
             panelSubProduct.TabIndex = 3;
             // 
             // btnBrand
@@ -331,7 +331,7 @@
             btnBrand.Location = new Point(0, 90);
             btnBrand.Name = "btnBrand";
             btnBrand.Padding = new Padding(20, 0, 0, 0);
-            btnBrand.Size = new Size(229, 45);
+            btnBrand.Size = new Size(250, 45);
             btnBrand.TabIndex = 5;
             btnBrand.Text = "Brand";
             btnBrand.TextAlign = ContentAlignment.MiddleLeft;
@@ -348,7 +348,7 @@
             btnCategory.Location = new Point(0, 45);
             btnCategory.Name = "btnCategory";
             btnCategory.Padding = new Padding(20, 0, 0, 0);
-            btnCategory.Size = new Size(229, 45);
+            btnCategory.Size = new Size(250, 45);
             btnCategory.TabIndex = 4;
             btnCategory.Text = "Category";
             btnCategory.TextAlign = ContentAlignment.MiddleLeft;
@@ -365,7 +365,7 @@
             btnProductList.Location = new Point(0, 0);
             btnProductList.Name = "btnProductList";
             btnProductList.Padding = new Padding(20, 0, 0, 0);
-            btnProductList.Size = new Size(229, 45);
+            btnProductList.Size = new Size(250, 45);
             btnProductList.TabIndex = 3;
             btnProductList.Text = "Product List";
             btnProductList.TextAlign = ContentAlignment.MiddleLeft;
@@ -379,10 +379,10 @@
             btnProduct.FlatAppearance.BorderColor = Color.Red;
             btnProduct.FlatStyle = FlatStyle.Flat;
             btnProduct.ForeColor = SystemColors.ControlLightLight;
-            btnProduct.Location = new Point(0, 195);
+            btnProduct.Location = new Point(0, 150);
             btnProduct.Name = "btnProduct";
             btnProduct.Padding = new Padding(5, 0, 0, 0);
-            btnProduct.Size = new Size(229, 45);
+            btnProduct.Size = new Size(250, 45);
             btnProduct.TabIndex = 2;
             btnProduct.Text = "Product";
             btnProduct.TextAlign = ContentAlignment.MiddleLeft;
@@ -399,9 +399,8 @@
             btnDashboard.Location = new Point(0, 150);
             btnDashboard.Name = "btnDashboard";
             btnDashboard.Padding = new Padding(5, 0, 0, 0);
-            btnDashboard.Size = new Size(229, 45);
+            btnDashboard.Size = new Size(250, 0);
             btnDashboard.TabIndex = 0;
-            btnDashboard.Text = "Dashboard";
             btnDashboard.TextAlign = ContentAlignment.MiddleLeft;
             btnDashboard.UseVisualStyleBackColor = false;
             btnDashboard.Click += btnDashboard_Click;
@@ -417,7 +416,7 @@
             panelLogo.ForeColor = SystemColors.ControlLightLight;
             panelLogo.Location = new Point(0, 0);
             panelLogo.Name = "panelLogo";
-            panelLogo.Size = new Size(229, 150);
+            panelLogo.Size = new Size(250, 150);
             panelLogo.TabIndex = 1;
             // 
             // lblName
@@ -517,7 +516,6 @@
         private Panel panelSlide;
         private Panel panelTitle;
         private Panel panelLogo;
-        private Button btnDashboard;
         private Panel panelSubProduct;
         private Button btnProduct;
         private Button btnBrand;
@@ -543,5 +541,6 @@
         private Panel panelMain;
         public Label lblUsername;
         public Label lblName;
+        private Button btnDashboard;
     }
 }

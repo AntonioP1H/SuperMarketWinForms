@@ -1,27 +1,19 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 
 namespace ProiectSupermarket
 {
     public partial class Cashier : Form
     {
-        SqlConnection cn = new SqlConnection();
-        SqlCommand cm = new SqlCommand();
         DBConnect dbcon = new DBConnect();
-        SqlDataReader dr;
-
-        int qty;
+        public string transno = "";
         string id, price;
         public Cashier()
         {
             InitializeComponent();
-            cn = new SqlConnection(dbcon.myConnection());
             GetTranNo();
         }
 
@@ -32,12 +24,14 @@ namespace ProiectSupermarket
                 Application.Exit();
             }
         }
+
         public void slide(Button button)
         {
             panelSlide.BackColor = Color.White;
             panelSlide.Height = button.Height;
             panelSlide.Top = button.Top;
         }
+
         #region Buttons
         private void btnNTran_Click(object sender, EventArgs e)
         {
@@ -75,10 +69,7 @@ namespace ProiectSupermarket
             slide(btnClear);
             if (MessageBox.Show("Remove all items from cart?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                cn.Open();
-                cm = new SqlCommand("DELETE FROM tbCart WHERE transno LIKE '" + lblTranNo.Text + "'", cn);
-                cm.ExecuteNonQuery();
-                cn.Close();
+                dbcon.ExecuteNonQuery("sp_ClearCartByTransNo", new SqlParameter("@transno", lblTranNo.Text));
                 MessageBox.Show("All items have been removed from cart", "Remove item", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadCart();
             }
@@ -100,7 +91,7 @@ namespace ProiectSupermarket
         private void btnLogout_Click(object sender, EventArgs e)
         {
             slide(btnLogout);
-            if(dgvCash.Rows.Count > 0)
+            if (dgvCash.Rows.Count > 0)
             {
                 MessageBox.Show("Finish transactions before exiting?", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -118,39 +109,39 @@ namespace ProiectSupermarket
         {
             try
             {
-                Boolean hascart = false;
+                bool hascart = false;
                 int i = 0;
                 double total = 0;
                 double discount = 0;
                 dgvCash.Rows.Clear();
-                cn.Open();
-                cm = new SqlCommand("SELECT c.id, c.pcode, p.pdesc, c.price, c.qty, c.disc, c.total FROM tbCart AS c " +
-                    "INNER JOIN tbProduct AS p ON c.pcode=p.pcode WHERE c.transno LIKE @transno and c.status LIKE 'Pending'", cn);
-                cm.Parameters.AddWithValue("@transno", lblTranNo.Text);
-                dr = cm.ExecuteReader();
-                while (dr.Read())
+
+                DataTable dt = dbcon.GetTable("sp_LoadCartItems", new SqlParameter("@transno", lblTranNo.Text));
+                foreach (DataRow row in dt.Rows)
                 {
                     i++;
-                    total += Convert.ToDouble(dr["total"].ToString());
-                    discount += Convert.ToDouble(dr["disc"].ToString());
-                    dgvCash.Rows.Add(i, dr["id"].ToString(), dr["pcode"].ToString(), dr["pdesc"].ToString(), dr["price"].ToString(), dr["qty"].ToString(), dr["disc"].ToString(), double.Parse(dr["total"].ToString()).ToString("#,##0.00"));
+                    double rowTotal = Convert.ToDouble(row["total"]);
+                    double rowDisc = Convert.ToDouble(row["disc"]);
+                    total += rowTotal;
+                    discount += rowDisc;
+
+                    dgvCash.Rows.Add(i, row["id"].ToString(), row["pcode"].ToString(), row["pdesc"].ToString(), row["price"].ToString(), row["qty"].ToString(), row["disc"].ToString(), rowTotal.ToString("#,##0.00"));
                     hascart = true;
                 }
-                dr.Close();
-                cn.Close();
+
                 lblSalesTotal.Text = total.ToString("#,##0.00");
                 lblDiscount.Text = discount.ToString("#,##0.00");
                 GetCartTotal();
-                if (hascart) { btnClear.Enabled = true; btnSettle.Enabled = true; btnDiscount.Enabled = true; }
-                else { btnClear.Enabled = false; btnSettle.Enabled = false; btnDiscount.Enabled = false; }
+
+                btnClear.Enabled = hascart;
+                btnSettle.Enabled = hascart;
+                btnDiscount.Enabled = hascart;
             }
             catch (Exception ex)
             {
-                cn.Close();
                 MessageBox.Show(ex.Message);
             }
-
         }
+
         public void GetCartTotal()
         {
             double discount = double.Parse(lblDiscount.Text);
@@ -162,6 +153,7 @@ namespace ProiectSupermarket
             lblVatable.Text = vatable.ToString("#,##0.00");
             lblDisplayTotal.Text = sales.ToString("#,##0.00");
         }
+
         private void timer1_Tick(object sender, EventArgs e)
         {
             lblTimer.Text = DateTime.Now.ToString("hh:mm:ss tt");
@@ -172,127 +164,91 @@ namespace ProiectSupermarket
             try
             {
                 string sdate = DateTime.Now.ToString("yyyyMMdd");
-                int count;
-                string transno;
-                cn.Open();
-                cm = new SqlCommand("SELECT TOP 1 transno FROM tbCart WHERE transno LIKE '" + sdate + "%' ORDER BY id desc", cn);
-                dr = cm.ExecuteReader();
-                dr.Read();
-                if (dr.HasRows)
+                object result = dbcon.ExecuteScalar("sp_GetLatestTranNo", new SqlParameter("@datePrefix", sdate));
+
+                if (result != null && result != DBNull.Value)
                 {
-                    transno = dr[0].ToString();
-                    count = int.Parse((transno.Substring(8, 4)));
+                    string transno = result.ToString();
+                    int count = int.Parse(transno.Substring(8, 4));
                     lblTranNo.Text = sdate + (count + 1);
                 }
                 else
                 {
-                    transno = sdate + "1001";
-                    lblTranNo.Text = transno;
+                    lblTranNo.Text = sdate + "1001";
                 }
-                dr.Close();
-                cn.Close();
             }
             catch (Exception ex)
             {
-                cn.Close();
                 MessageBox.Show(ex.Message);
             }
-
         }
 
         private void txtBarcode_TextChanged(object sender, EventArgs e)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(txtBarcode.Text)) return;
-                if (txtBarcode.Text.Length < 5) return;
-                else
+                if (string.IsNullOrWhiteSpace(txtBarcode.Text) || txtBarcode.Text.Length < 5) return;
+
+                int _qty = string.IsNullOrEmpty(txtQty.Text) ? 1 : int.Parse(txtQty.Text);
+                DataTable dt = dbcon.GetTable("sp_GetProductByBarcode", new SqlParameter("@barcode", txtBarcode.Text));
+
+                if (dt.Rows.Count > 0)
                 {
-                    int _qty = int.Parse(txtQty.Text);
-                    string _pcode;
-                    double _price;
-                    cn.Open();
-                    cm = new SqlCommand("SELECT pcode, price FROM tbProduct WHERE barcode = @barcode", cn);
-                    cm.Parameters.AddWithValue("@barcode", txtBarcode.Text);
-                    dr = cm.ExecuteReader();
-                    if (dr.Read())
-                    {
-                        _pcode = dr["pcode"].ToString();
-                        _price = Convert.ToDouble(dr["price"]);
-                    }
-                    else
-                    {
-                        return;
-                    }
-                    dr.Close();
-                    cn.Close();
+                    string _pcode = dt.Rows[0]["pcode"].ToString();
+                    double _price = Convert.ToDouble(dt.Rows[0]["price"]);
                     AddToCart(_pcode, _price, _qty);
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
-                dr.Close();
-                cn.Close();
             }
         }
+
         public void AddToCart(string _pcode, double _price, int _qty)
         {
             try
             {
-                string id = "";
+                DataTable dtProd = dbcon.GetTable("sp_GetProductTotalQtyByPcode", new SqlParameter("@pcode", _pcode));
+                int stockQty = dtProd.Rows.Count > 0 && dtProd.Rows[0]["qty"] != DBNull.Value ? Convert.ToInt32(dtProd.Rows[0]["qty"]) : 0;
+
+                DataTable dtCart = dbcon.GetTable("sp_CheckCartItem", new SqlParameter("@transno", lblTranNo.Text), new SqlParameter("@pcode", _pcode));
                 int cart_qty = 0;
                 bool found = false;
-                cn.Open();
-                cm = new SqlCommand("Select * from tbCart Where transno = @transno and pcode = @pcode", cn);
-                cm.Parameters.AddWithValue("@transno", lblTranNo.Text);
-                cm.Parameters.AddWithValue("@pcode", _pcode);
-                dr = cm.ExecuteReader();
-                dr.Read();
-                if (dr.HasRows)
+
+                if (dtCart.Rows.Count > 0)
                 {
-                    id = dr["id"].ToString();
-                    cart_qty = int.Parse(dr["qty"].ToString());
+                    cart_qty = Convert.ToInt32(dtCart.Rows[0]["qty"]);
                     found = true;
                 }
-                dr.Close();
-                cn.Close();
+
+                if (stockQty < (_qty + (found ? cart_qty : 0)))
+                {
+                    MessageBox.Show("Unable to proceed. Remaining quantity is " + stockQty, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
                 if (found)
                 {
-                    if (qty < (int.Parse(txtQty.Text) + cart_qty))
-                    {
-                        MessageBox.Show("Unable to proceed. Remaining quantity is " + qty, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-                    cn.Open();
-                    cm = new SqlCommand("Update tbCart set qty = (qty + " + _qty + ") WHERE id= '" + id + "'", cn);
-                    cm.ExecuteNonQuery();
-                    cn.Close();
-                    txtBarcode.SelectionStart = 0;
-                    txtBarcode.SelectionLength = txtBarcode.Text.Length;
-                    LoadCart();
+                    dbcon.ExecuteNonQuery("sp_UpdateCartQuantityAdd",
+                        new SqlParameter("@transno", lblTranNo.Text),
+                        new SqlParameter("@pcode", _pcode),
+                        new SqlParameter("@addQty", _qty));
                 }
                 else
                 {
-                    if (qty < (int.Parse(txtQty.Text) + cart_qty))
-                    {
-                        MessageBox.Show("Unable to proceed. Remaining quantity is " + qty, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-                    cn.Open();
-                    cm = new SqlCommand("INSERT INTO tbCart(transno, pcode, price, qty, sdate, cashier) VALUES (@transno, @pcode, @price, @qty, @sdate, @cashier)", cn);
-                    cm.Parameters.AddWithValue("@transno", lblTranNo.Text);
-                    cm.Parameters.AddWithValue("@pcode", _pcode);
-                    cm.Parameters.AddWithValue("@price", _price);
-                    cm.Parameters.AddWithValue("@qty", _qty);
-                    cm.Parameters.AddWithValue("@sdate", DateTime.Now);
-                    cm.Parameters.AddWithValue("@cashier", lblUsername.Text);
-                    cm.ExecuteNonQuery();
-                    cn.Close();
-                    LoadCart();
+                    dbcon.ExecuteNonQuery("sp_AddToCart",
+                        new SqlParameter("@transno", lblTranNo.Text),
+                        new SqlParameter("@pcode", _pcode),
+                        new SqlParameter("@price", _price),
+                        new SqlParameter("@qty", _qty),
+                        new SqlParameter("@sdate", DateTime.Now),
+                        new SqlParameter("@cashier", lblUsername.Text));
                 }
 
+                txtBarcode.SelectionStart = 0;
+                txtBarcode.SelectionLength = txtBarcode.Text.Length;
+                LoadCart();
             }
             catch (Exception ex)
             {
@@ -302,6 +258,7 @@ namespace ProiectSupermarket
 
         private void dgvCash_SelectionChanged(object sender, EventArgs e)
         {
+            if (dgvCash.CurrentRow == null) return;
             int i = dgvCash.CurrentRow.Index;
             id = dgvCash[1, i].Value.ToString();
             price = dgvCash[7, i].Value.ToString();
@@ -309,51 +266,53 @@ namespace ProiectSupermarket
 
         private void dgvCash_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            int i = 0;
+            if (e.RowIndex < 0) return;
             string colName = dgvCash.Columns[e.ColumnIndex].Name;
+            string cartId = dgvCash.Rows[e.RowIndex].Cells[1].Value.ToString();
+            string pcode = dgvCash.Rows[e.RowIndex].Cells[2].Value.ToString();
+
             if (colName == "Delete")
             {
                 if (MessageBox.Show("Remove item from cart?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    dbcon.ExecuteQuery("DELETE FROM tbCart WHERE id LIKE '" + dgvCash.Rows[e.RowIndex].Cells[1].Value.ToString() + "'");
+                    dbcon.ExecuteNonQuery("sp_DeleteCartItemById", new SqlParameter("@id", cartId));
                     MessageBox.Show("Item have been removed from cart", "Remove item", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadCart();
                 }
             }
             else if (colName == "colAdd")
             {
-                cn.Open();
-                cm = new SqlCommand("SELECT SUM(qty) as qty FROM tbCart WHERE pcode LIKE '" + dgvCash.Rows[e.RowIndex].Cells[2].Value.ToString() + "' GROUP BY pcode", cn);
-                i = int.Parse(cm.ExecuteScalar().ToString());
-                cn.Close();
-                if (int.Parse(dgvCash.Rows[e.RowIndex].Cells[5].Value.ToString()) < i)
+                DataTable dt = dbcon.GetTable("sp_GetProductTotalQtyByPcode", new SqlParameter("@pcode", pcode));
+                int stockQty = dt.Rows.Count > 0 && dt.Rows[0]["qty"] != DBNull.Value ? Convert.ToInt32(dt.Rows[0]["qty"]) : 0;
+                int currentCartQty = Convert.ToInt32(dgvCash.Rows[e.RowIndex].Cells[5].Value);
+
+                if (currentCartQty < stockQty)
                 {
-                    dbcon.ExecuteQuery("UPDATE tbCart SET qty = qty + " + int.Parse(txtQty.Text) + " WHERE transno =" + lblTranNo.Text +" AND pcode = '" 
-                        + dgvCash.Rows[e.RowIndex].Cells[2].Value.ToString() +"'");
+                    dbcon.ExecuteNonQuery("sp_UpdateCartQuantityAdd",
+                        new SqlParameter("@transno", lblTranNo.Text),
+                        new SqlParameter("@pcode", pcode),
+                        new SqlParameter("@addQty", int.Parse(txtQty.Text)));
                     LoadCart();
                 }
                 else
                 {
-                    MessageBox.Show("Remaining qty on hand is " + i + "!", "Out of Stock", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    MessageBox.Show("Remaining qty on hand is " + stockQty + "!", "Out of Stock", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             else if (colName == "colReduce")
             {
-                cn.Open();
-                cm = new SqlCommand("SELECT SUM(qty) as qty FROM tbCart WHERE pcode LIKE '" + dgvCash.Rows[e.RowIndex].Cells[2].Value.ToString() + "' GROUP BY pcode", cn);
-                i = int.Parse(cm.ExecuteScalar().ToString());
-                cn.Close();
-                if (i>1)
+                int currentCartQty = Convert.ToInt32(dgvCash.Rows[e.RowIndex].Cells[5].Value);
+                if (currentCartQty > 1)
                 {
-                    dbcon.ExecuteQuery("UPDATE tbCart SET qty = qty - '" + int.Parse(txtQty.Text) + "' WHERE transno =" + lblTranNo.Text + " AND pcode = '"
-                        + dgvCash.Rows[e.RowIndex].Cells[2].Value.ToString() + "'");
+                    dbcon.ExecuteNonQuery("sp_UpdateCartQuantityReduce",
+                        new SqlParameter("@transno", lblTranNo.Text),
+                        new SqlParameter("@pcode", pcode),
+                        new SqlParameter("@reduceQty", int.Parse(txtQty.Text)));
                     LoadCart();
                 }
                 else
                 {
-                    MessageBox.Show("Remaining qty on cart is " + i + "!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    MessageBox.Show("Remaining qty on cart is " + currentCartQty + "!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }

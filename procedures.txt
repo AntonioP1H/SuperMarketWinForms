@@ -1,0 +1,331 @@
+CREATE PROCEDURE sp_GetBrands AS
+BEGIN
+    SELECT id, brand FROM tbBrand ORDER BY brand;
+END
+GO
+
+CREATE PROCEDURE sp_InsertBrand @brand VARCHAR(100) AS
+BEGIN
+    INSERT INTO tbBrand(brand) VALUES (@brand);
+END
+GO
+
+CREATE PROCEDURE sp_UpdateBrand @id INT, @brand VARCHAR(100) AS
+BEGIN
+    UPDATE tbBrand SET brand = @brand WHERE id = @id;
+END
+GO
+
+CREATE PROCEDURE sp_DeleteBrand @id INT AS
+BEGIN
+    DELETE FROM tbBrand WHERE id = @id;
+END
+GO
+
+CREATE PROCEDURE sp_GetCategories AS
+BEGIN
+    SELECT id, category FROM tbCategory ORDER BY category;
+END
+GO
+
+CREATE PROCEDURE sp_InsertCategory @category VARCHAR(100) AS
+BEGIN
+    INSERT INTO tbCategory(category) VALUES (@category);
+END
+GO
+
+CREATE PROCEDURE sp_UpdateCategory @id INT, @category VARCHAR(100) AS
+BEGIN
+    UPDATE tbCategory SET category = @category WHERE id = @id;
+END
+GO
+
+CREATE PROCEDURE sp_DeleteCategory @id INT AS
+BEGIN
+    DELETE FROM tbCategory WHERE id = @id;
+END
+GO
+
+
+CREATE PROCEDURE sp_GetSuppliers AS
+BEGIN
+    SELECT * FROM tbSupplier;
+END
+GO
+
+CREATE PROCEDURE sp_InsertSupplier 
+    @supplier VARCHAR(100), @address VARCHAR(255), @contactperson VARCHAR(100), 
+    @phone VARCHAR(50), @email VARCHAR(100), @fax VARCHAR(50) AS
+BEGIN
+    INSERT INTO tbSupplier (supplier, address, contactperson, phone, email, fax) 
+    VALUES (@supplier, @address, @contactperson, @phone, @email, @fax);
+END
+GO
+
+CREATE PROCEDURE sp_UpdateSupplier 
+    @id INT, @supplier VARCHAR(100), @address VARCHAR(255), @contactperson VARCHAR(100), 
+    @phone VARCHAR(50), @email VARCHAR(100), @fax VARCHAR(50) AS
+BEGIN
+    UPDATE tbSupplier SET supplier=@supplier, address=@address, contactperson=@contactperson, phone=@phone, email=@email, fax=@fax WHERE id = @id;
+END
+GO
+
+CREATE PROCEDURE sp_DeleteSupplier @id INT AS
+BEGIN
+    DELETE FROM tbSupplier WHERE id = @id;
+END
+GO
+
+CREATE PROCEDURE sp_AuthenticateUser @username VARCHAR(50), @password VARCHAR(50) AS
+BEGIN
+    SELECT username, name, role, password, isactive FROM tbUser WHERE username = @username AND password = @password;
+END
+GO
+
+CREATE PROCEDURE sp_InsertUser @username VARCHAR(50), @password VARCHAR(50), @role VARCHAR(50), @name VARCHAR(100) AS
+BEGIN
+    INSERT INTO tbUser(username, password, role, name) VALUES (@username, @password, @role, @name);
+END
+GO
+
+CREATE PROCEDURE sp_SearchProducts @search VARCHAR(100) AS
+BEGIN
+    SELECT p.pcode, p.barcode, p.pdesc, b.brand, c.category, p.price, p.reorder 
+    FROM tbProduct AS p 
+    INNER JOIN tbBrand AS b ON b.id = p.bid 
+    INNER JOIN tbCategory AS c ON c.id = p.cid 
+    WHERE CONCAT(p.pdesc, b.brand, c.category) LIKE @search;
+END
+GO
+
+CREATE PROCEDURE sp_InsertProduct 
+    @pcode VARCHAR(50), @barcode VARCHAR(50), @pdesc VARCHAR(255), 
+    @bid INT, @cid INT, @price DECIMAL(18,2), @qty INT, @reorder INT AS
+BEGIN
+    INSERT INTO tbProduct (pcode, barcode, pdesc, bid, cid, price, qty, reorder)
+    VALUES (@pcode, @barcode, @pdesc, @bid, @cid, @price, @qty, @reorder);
+END
+GO
+
+CREATE PROCEDURE sp_GetCartItems
+    @transno VARCHAR(50)
+AS
+BEGIN
+    SELECT c.id, p.pcode, p.pdesc, c.price, c.qty, c.disc, c.total, c.cashier 
+    FROM tbCart c 
+    INNER JOIN tbProduct p ON c.pcode = p.pcode 
+    WHERE c.transno = @transno AND c.status = 'Pending';
+END
+GO
+
+CREATE PROCEDURE sp_AddToCart
+    @transno VARCHAR(50),
+    @pcode VARCHAR(50),
+    @price DECIMAL(18,2),
+    @qty INT,
+    @cashier VARCHAR(50)
+AS
+BEGIN
+    IF EXISTS (SELECT * FROM tbCart WHERE transno = @transno AND pcode = @pcode AND status = 'Pending')
+        UPDATE tbCart SET qty = qty + @qty WHERE transno = @transno AND pcode = @pcode AND status = 'Pending';
+    ELSE
+        INSERT INTO tbCart(transno, pcode, price, qty, sdate, cashier, status)
+        VALUES (@transno, @pcode, @price, @qty, GETDATE(), @cashier, 'Pending');
+END
+GO
+
+CREATE PROCEDURE sp_UpdateCartQty
+    @id INT,
+    @qty INT
+AS
+BEGIN
+    UPDATE tbCart SET qty = @qty WHERE id = @id;
+END
+GO
+
+CREATE PROCEDURE sp_DeleteCart
+    @id INT
+AS
+BEGIN
+    DELETE FROM tbCart WHERE id = @id;
+END
+GO
+
+CREATE PROCEDURE sp_UpdateCartDiscount
+    @id INT,
+    @disc DECIMAL(18,2)
+AS
+BEGIN
+    UPDATE tbCart SET disc = @disc WHERE id = @id;
+END
+GO
+
+CREATE PROCEDURE sp_SettlePayment
+    @transno VARCHAR(50)
+AS
+BEGIN
+    UPDATE p 
+    SET p.qty = p.qty - c.qty 
+    FROM tbProduct p 
+    INNER JOIN tbCart c ON p.pcode = c.pcode 
+    WHERE c.transno = @transno AND c.status = 'Pending';
+
+    UPDATE tbCart SET status = 'Sold' WHERE transno = @transno AND status = 'Pending';
+END
+GO
+
+CREATE PROCEDURE sp_GetDailySales
+    @datefrom DATE,
+    @dateto DATE,
+    @cashier VARCHAR(50)
+AS
+BEGIN
+    IF @cashier = 'All Cashiers'
+        SELECT c.id, c.transno, p.pcode, p.pdesc, c.price, c.qty, c.disc, c.total, c.sdate, c.cashier 
+        FROM tbCart c 
+        INNER JOIN tbProduct p ON c.pcode = p.pcode 
+        WHERE c.status = 'Sold' AND CAST(c.sdate AS DATE) BETWEEN @datefrom AND @dateto;
+    ELSE
+        SELECT c.id, c.transno, p.pcode, p.pdesc, c.price, c.qty, c.disc, c.total, c.sdate, c.cashier 
+        FROM tbCart c 
+        INNER JOIN tbProduct p ON c.pcode = p.pcode 
+        WHERE c.status = 'Sold' AND c.cashier = @cashier AND CAST(c.sdate AS DATE) BETWEEN @datefrom AND @dateto;
+END
+GO
+
+CREATE PROCEDURE sp_InsertStockIn
+    @refno VARCHAR(50),
+    @pcode VARCHAR(50),
+    @qty INT,
+    @sdate DATETIME,
+    @stockinby VARCHAR(50),
+    @supplierid INT
+AS
+BEGIN
+    INSERT INTO tbStockIn (refno, pcode, qty, sdate, stockinby, supplierid, status)
+    VALUES (@refno, @pcode, @qty, @sdate, @stockinby, @supplierid, 'Pending');
+END
+GO
+
+
+CREATE PROCEDURE sp_InsertCancel
+    @transno VARCHAR(50),
+    @pcode VARCHAR(50),
+    @price DECIMAL(18,2),
+    @qty INT,
+    @total DECIMAL(18,2),
+    @sdate DATETIME,
+    @voidby VARCHAR(50),
+    @cancelledby VARCHAR(50),
+    @reason VARCHAR(255),
+    @action VARCHAR(50)
+AS
+BEGIN
+    INSERT INTO tbCancel (transno, pcode, price, qty, total, sdate, voidby, cancelledby, reason, action)
+    VALUES (@transno, @pcode, @price, @qty, @total, @sdate, @voidby, @cancelledby, @reason, @action);
+END
+GO
+
+CREATE PROCEDURE sp_GetLatestTranNo
+    @datePrefix VARCHAR(8)
+AS
+BEGIN
+    SELECT TOP 1 transno FROM tbCart WHERE transno LIKE @datePrefix + '%' ORDER BY id DESC;
+END
+GO
+
+CREATE PROCEDURE sp_LoadCartItems
+    @transno VARCHAR(50)
+AS
+BEGIN
+    SELECT c.id, c.pcode, p.pdesc, c.price, c.qty, c.disc, c.total 
+    FROM tbCart AS c 
+    INNER JOIN tbProduct AS p ON c.pcode = p.pcode 
+    WHERE c.transno LIKE @transno AND c.status LIKE 'Pending';
+END
+GO
+
+CREATE PROCEDURE sp_GetProductByBarcode
+    @barcode VARCHAR(50)
+AS
+BEGIN
+    SELECT pcode, price, qty FROM tbProduct WHERE barcode = @barcode;
+END
+GO
+
+CREATE PROCEDURE sp_CheckCartItem
+    @transno VARCHAR(50),
+    @pcode VARCHAR(50)
+AS
+BEGIN
+    SELECT id, qty FROM tbCart WHERE transno = @transno AND pcode = @pcode AND status = 'Pending';
+END
+GO
+
+CREATE PROCEDURE sp_AddToCart
+    @transno VARCHAR(50),
+    @pcode VARCHAR(50),
+    @price DECIMAL(18,2),
+    @qty INT,
+    @sdate DATETIME,
+    @cashier VARCHAR(50)
+AS
+BEGIN
+    INSERT INTO tbCart(transno, pcode, price, qty, sdate, cashier, status) 
+    VALUES (@transno, @pcode, @price, @qty, @sdate, @cashier, 'Pending');
+END
+GO
+
+CREATE PROCEDURE sp_UpdateCartQuantityAdd
+    @transno VARCHAR(50),
+    @pcode VARCHAR(50),
+    @addQty INT
+AS
+BEGIN
+    UPDATE tbCart SET qty = qty + @addQty WHERE transno = @transno AND pcode = @pcode AND status = 'Pending';
+END
+GO
+
+CREATE PROCEDURE sp_UpdateCartQuantityReduce
+    @transno VARCHAR(50),
+    @pcode VARCHAR(50),
+    @reduceQty INT
+AS
+BEGIN
+    UPDATE tbCart SET qty = qty - @reduceQty WHERE transno = @transno AND pcode = @pcode AND status = 'Pending';
+END
+GO
+
+CREATE PROCEDURE sp_ClearCartByTransNo
+    @transno VARCHAR(50)
+AS
+BEGIN
+    DELETE FROM tbCart WHERE transno LIKE @transno AND status LIKE 'Pending';
+END
+GO
+
+CREATE PROCEDURE sp_DeleteCartItemById
+    @id INT
+AS
+BEGIN
+    DELETE FROM tbCart WHERE id = @id;
+END
+GO
+
+CREATE PROCEDURE sp_GetProductTotalQtyByPcode
+    @pcode VARCHAR(50)
+AS
+BEGIN
+    SELECT SUM(qty) as qty FROM tbProduct WHERE pcode = @pcode;
+END
+GO
+
+CREATE PROCEDURE sp_UpdateDiscount
+    @id INT,
+    @disc DECIMAL(18,2),
+    @total DECIMAL(18,2)
+AS
+BEGIN
+    UPDATE tbCart SET disc = @disc, total = @total WHERE id = @id;
+END
+GO

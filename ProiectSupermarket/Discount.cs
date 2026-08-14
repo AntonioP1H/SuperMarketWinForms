@@ -1,25 +1,18 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 
 namespace ProiectSupermarket
 {
     public partial class Discount : Form
     {
-        SqlConnection cn = new SqlConnection();
-        SqlCommand cm = new SqlCommand();
         DBConnect dbcon = new DBConnect();
-        SqlDataReader dr;
         Cashier cashier;
+
         public Discount(Cashier cash)
         {
             InitializeComponent();
-            cn = new SqlConnection(dbcon.myConnection());
             cashier = cash;
             txtDiscount.Focus();
             this.KeyPreview = true;
@@ -53,21 +46,19 @@ namespace ProiectSupermarket
         {
             try
             {
-                if(MessageBox.Show("Add discount?","POS", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                if (MessageBox.Show("Add discount?", "POS", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    cn.Open();
-                    cm = new SqlCommand("UPDATE tbCart SET disc_percent=@disc_percent WHERE id = @id", cn);
-                    cm.Parameters.AddWithValue("@disc_percent", double.Parse(txtDiscount.Text));
-                    cm.Parameters.AddWithValue("@id", int.Parse(lblId.Text));
-                    cm.ExecuteNonQuery();
-                    cn.Close();
+                    dbcon.ExecuteNonQuery("sp_UpdateDiscount",
+                        new SqlParameter("@disc_percent", double.Parse(txtDiscount.Text)),
+                        new SqlParameter("@id", int.Parse(lblId.Text))
+                    );
+
                     cashier.LoadCart();
                     this.Dispose();
                 }
             }
             catch (Exception ex)
             {
-                cn.Close();
                 MessageBox.Show(ex.Message);
             }
         }

@@ -1,73 +1,46 @@
-﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System;
 using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
+using Microsoft.Data.SqlClient;
 
 namespace ProiectSupermarket
 {
     public partial class Login : Form
     {
-        SqlConnection cn = new SqlConnection();
-        SqlCommand cm = new SqlCommand();
         DBConnect dbcon = new DBConnect();
-        SqlDataReader dr;
-
         public string _pass = "";
         public bool _isactive;
-        public Login()
-        {
-            InitializeComponent();
-            cn = new SqlConnection(dbcon.myConnection());
-        }
 
-        private void picClose_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show("Quit App?", "Quit", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-            {
-                Application.Exit();
-            }
-        }
+        public Login() { InitializeComponent(); }
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            string _username = "", _name = "", _role = "";
             try
             {
-                bool found = false;
-                cn.Open();
-                cm = new SqlCommand("SELECT * FROM tbUser WHERE username = @username AND password = @password", cn);
-                cm.Parameters.AddWithValue("@username", txtName.Text);
-                cm.Parameters.AddWithValue("@password", txtPass.Text);
-                dr = cm.ExecuteReader();
-                dr.Read();
-                if (dr.HasRows)
+                DataTable dt = dbcon.GetTable("sp_AuthenticateUser",
+                    new SqlParameter("@username", txtName.Text),
+                    new SqlParameter("@password", txtPass.Text));
+
+                if (dt.Rows.Count > 0)
                 {
-                    found = true;
-                    _username = dr["username"].ToString();
-                    _name = dr["name"].ToString();
-                    _role = dr["role"].ToString();
-                    _pass = dr["password"].ToString();
-                    _isactive = bool.Parse(dr["isactive"].ToString());
-                }
-                dr.Close();
-                cn.Close();
-                if (found)
-                {
+                    DataRow row = dt.Rows[0];
+                    string _username = row["username"].ToString();
+                    string _name = row["name"].ToString();
+                    string _role = row["role"].ToString();
+                    _pass = row["password"].ToString();
+                    _isactive = bool.Parse(row["isactive"].ToString());
+
                     if (!_isactive)
                     {
                         MessageBox.Show("Account is inactive. Unable to login", "Inactive account", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
+
+                    MessageBox.Show("Welcome.", "ACCESS GRANTED", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    txtName.Clear(); txtPass.Clear(); this.Hide();
+
                     if (_role == "Cashier")
                     {
-                        MessageBox.Show("Welcome.", "ACESS GRANTED", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        txtName.Clear();
-                        txtPass.Clear();
-                        this.Hide();
                         Cashier cashier = new Cashier();
                         cashier.lblUsername.Text = _username;
                         cashier.lblname.Text = _name + " | " + _role;
@@ -75,16 +48,11 @@ namespace ProiectSupermarket
                     }
                     else
                     {
-                        MessageBox.Show("Welcome.", "ACESS GRANTED", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        txtName.Clear();
-                        txtPass.Clear();
-                        this.Hide();
                         Form1 main = new Form1();
                         main.lblUsername.Text = _username;
                         main.lblName.Text = _name + " | " + _role;
                         main.ShowDialog();
                     }
-
                 }
                 else
                 {
@@ -93,17 +61,11 @@ namespace ProiectSupermarket
             }
             catch (Exception ex)
             {
-                cn.Close();
                 MessageBox.Show(ex.Message);
             }
         }
 
-        private void txtPass_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if(e.KeyChar==13)
-            {
-                btnLogin.PerformClick();
-            }
-        }
+        private void picClose_Click(object sender, EventArgs e) { if (MessageBox.Show("Quit App?", "Quit", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) Application.Exit(); }
+        private void txtPass_KeyPress(object sender, KeyPressEventArgs e) { if (e.KeyChar == 13) btnLogin.PerformClick(); }
     }
 }

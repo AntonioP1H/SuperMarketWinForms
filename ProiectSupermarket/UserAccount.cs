@@ -1,49 +1,32 @@
-﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
+﻿using System;
 using System.Windows.Forms;
+using Microsoft.Data.SqlClient;
 
 namespace ProiectSupermarket
 {
     public partial class UserAccount : Form
     {
-        SqlConnection cn = new SqlConnection();
-        SqlCommand cm = new SqlCommand();
         DBConnect dbcon = new DBConnect();
-        SqlDataReader dr;
-        public UserAccount()
-        {
-            InitializeComponent();
-            cn = new SqlConnection(dbcon.myConnection());
-        }
-        public void Clear()
-        {
-            txtName.Clear();
-            txtPass.Clear();
-            txtUsername.Clear();
-            cbRole.Text = "";
-            txtUsername.Focus();
-        }
+        public UserAccount() { InitializeComponent(); }
+
+        public void Clear() { txtName.Clear(); txtPass.Clear(); txtUsername.Clear(); cbRole.Text = ""; txtUsername.Focus(); }
+
         private void btnAccSave_Click(object sender, EventArgs e)
         {
             try
             {
-                if (txtPass.Text != txtRePass.Text) { 
+                if (txtPass.Text != txtRePass.Text)
+                {
                     MessageBox.Show("Password does not match!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
                 }
-                cm = new SqlCommand("INSERT INTO tbUser(username, password, role, name)Values(@username,@password,@role,@name)", cn);
-                cm.Parameters.Add("@username", SqlDbType.VarChar).Value = txtUsername.Text;
-                cm.Parameters.Add("@password", SqlDbType.VarChar).Value = txtPass.Text;
-                cm.Parameters.Add("@role", SqlDbType.VarChar).Value = cbRole.Text;
-                cm.Parameters.Add("@name", SqlDbType.VarChar).Value = txtName.Text;
-                cn.Open();
-                cm.ExecuteNonQuery();
-                cn.Close();
-                MessageBox.Show("Record has been saved successfuly.");
+                dbcon.ExecuteNonQuery("sp_InsertUser",
+                    new SqlParameter("@username", txtUsername.Text),
+                    new SqlParameter("@password", txtPass.Text),
+                    new SqlParameter("@role", cbRole.Text),
+                    new SqlParameter("@name", txtName.Text)
+                );
+                MessageBox.Show("Record has been saved successfully.");
                 Clear();
             }
             catch (Exception ex)
@@ -52,9 +35,6 @@ namespace ProiectSupermarket
             }
         }
 
-        private void btnAccCancel_Click(object sender, EventArgs e)
-        {
-            Clear();
-        }
+        private void btnAccCancel_Click(object sender, EventArgs e) => Clear();
     }
 }

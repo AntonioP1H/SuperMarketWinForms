@@ -57,9 +57,11 @@ namespace ProiectSupermarket
             if (colName == "Select")
             {
                 Qty qty = new Qty(cashier);
-                qty.ProductDetails(dgvProduct.Rows[e.RowIndex].Cells[1].Value.ToString(),
-                    double.Parse(dgvProduct.Rows[e.RowIndex].Cells[6].Value.ToString()), cashier.lblTranNo.Text,
-                    int.Parse(dgvProduct.Rows[e.RowIndex].Cells[7].Value.ToString()));
+                qty.ProductDetails(
+                    dgvProduct.Rows[e.RowIndex].Cells[1].Value.ToString(),
+                    decimal.Parse(dgvProduct.Rows[e.RowIndex].Cells[6].Value.ToString()), // Changed from double.Parse to decimal.Parse
+                    cashier.lblTranNo.Text,
+                    dgvProduct.Rows[e.RowIndex].Cells[7].Value.ToString());
                 qty.ShowDialog();
             }
         }

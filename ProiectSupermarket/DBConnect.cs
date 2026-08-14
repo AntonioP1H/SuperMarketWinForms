@@ -1,48 +1,116 @@
-﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Data;
-using System.Text;
+using Microsoft.Data.SqlClient;
 
 namespace ProiectSupermarket
 {
-
-    class DBConnect
+    public class DBConnect
     {
-        SqlConnection cn = new SqlConnection();
-        SqlCommand cm = new SqlCommand();
-        private string con;
-        public string myConnection() {
-            con = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\antonio\Documents\DBPOSale.mdf;Integrated Security=True;Connect Timeout=30;Encrypt=True";
+        public string myConnection()
+        {
+            string con = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\antonio\Documents\DBPOSale.mdf;Integrated Security=True;Connect Timeout=30;Encrypt=True";
             return con;
         }
 
-        public DataTable getTable(string query) 
+        public DataTable getTable(string queryOrProc, params SqlParameter[] parameters)
         {
-            cn.ConnectionString = myConnection();
-            cm = new SqlCommand(query, cn);
-            SqlDataAdapter adapter =  new SqlDataAdapter(cm);
-            DataTable table = new DataTable();
-            adapter.Fill(table);
-            return table;
+            return GetTable(queryOrProc, parameters);
         }
-        
-        public void ExecuteQuery(String sql)
+        public DataTable GetTable(string queryOrProc, params SqlParameter[] parameters)
         {
-            try
+            DataTable dt = new DataTable();
+            using (SqlConnection cn = new SqlConnection(myConnection()))
             {
-                cn.ConnectionString= myConnection();
+                using (SqlCommand cm = new SqlCommand(queryOrProc, cn))
+                {
+                    if (!queryOrProc.Contains(" ") && !queryOrProc.ToUpper().StartsWith("SELECT"))
+                    {
+                        cm.CommandType = CommandType.StoredProcedure;
+                    }
+                    else
+                    {
+                        cm.CommandType = CommandType.Text;
+                    }
+
+                    if (parameters != null)
+                    {
+                        cm.Parameters.AddRange(parameters);
+                    }
+
+                    cn.Open();
+                    using (SqlDataAdapter da = new SqlDataAdapter(cm))
+                    {
+                        da.Fill(dt);
+                    }
+                }
+            }
+            return dt;
+        }
+
+        public void ExecuteQuery(string query)
+        {
+            using (SqlConnection cn = new SqlConnection(myConnection()))
+            {
                 cn.Open();
-                cm = new SqlCommand(sql, cn);
-                cm.ExecuteNonQuery();
-                cn.Close();
+                using (SqlCommand cm = new SqlCommand(query, cn))
+                {
+                    cm.ExecuteNonQuery();
+                }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-
         }
 
+        public void ExecuteNonQuery(string queryOrProc, params SqlParameter[] parameters)
+        {
+            using (SqlConnection cn = new SqlConnection(myConnection()))
+            {
+                using (SqlCommand cm = new SqlCommand(queryOrProc, cn))
+                {
+                    if (!queryOrProc.Contains(" ") && !queryOrProc.ToUpper().StartsWith("DELETE") && !queryOrProc.ToUpper().StartsWith("UPDATE") && !queryOrProc.ToUpper().StartsWith("INSERT"))
+                    {
+                        cm.CommandType = CommandType.StoredProcedure;
+                    }
+                    else
+                    {
+                        cm.CommandType = CommandType.Text;
+                    }
+
+                    if (parameters != null)
+                    {
+                        cm.Parameters.AddRange(parameters);
+                    }
+
+                    cn.Open();
+                    cm.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public object ExecuteScalar(string queryOrProc, params SqlParameter[] parameters)
+        {
+            object result = null;
+            using (SqlConnection cn = new SqlConnection(myConnection()))
+            {
+                using (SqlCommand cm = new SqlCommand(queryOrProc, cn))
+                {
+                    if (!queryOrProc.Contains(" ") && !queryOrProc.ToUpper().StartsWith("SELECT"))
+                    {
+                        cm.CommandType = CommandType.StoredProcedure;
+                    }
+                    else
+                    {
+                        cm.CommandType = CommandType.Text;
+                    }
+
+                    if (parameters != null)
+                    {
+                        cm.Parameters.AddRange(parameters);
+                    }
+
+                    cn.Open();
+                    result = cm.ExecuteScalar();
+                }
+            }
+            return result;
+        }
     }
 }
