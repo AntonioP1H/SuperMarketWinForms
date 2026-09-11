@@ -1,10 +1,10 @@
 <?xml version="1.0" standalone="yes"?>
 <NewDataSet>
   <xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:MainDataTable="Table" msdata:UseCurrentLocale="true">
+    <xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true">
       <xs:complexType>
         <xs:choice minOccurs="0" maxOccurs="unbounded">
-          <xs:element name="Table">
+          <xs:element name="Table1">
             <xs:complexType>
               <xs:sequence>
                 <xs:element name="pcode" type="xs:string" minOccurs="0" />
@@ -22,7 +22,7 @@
       </xs:complexType>
     </xs:element>
   </xs:schema>
-  <Table>
+  <Table1>
     <pcode>P001</pcode>
     <barcode>123456</barcode>
     <pdesc>Samsung S21+</pdesc>
@@ -31,8 +31,8 @@
     <price>1499.99</price>
     <qty>11</qty>
     <reorder>3</reorder>
-  </Table>
-  <Table>
+  </Table1>
+  <Table1>
     <pcode>P002</pcode>
     <barcode>123457</barcode>
     <pdesc>Macbook</pdesc>
@@ -41,8 +41,8 @@
     <price>2599.99</price>
     <qty>3</qty>
     <reorder>2</reorder>
-  </Table>
-  <Table>
+  </Table1>
+  <Table1>
     <pcode>P003</pcode>
     <barcode>345672</barcode>
     <pdesc>Iphone 15</pdesc>
@@ -51,5 +51,25 @@
     <price>499.99</price>
     <qty>0</qty>
     <reorder>3</reorder>
-  </Table>
+  </Table1>
+  <Table1>
+    <pcode>P004</pcode>
+    <barcode>123467</barcode>
+    <pdesc>Samsung S21</pdesc>
+    <bid>1</bid>
+    <cid>2</cid>
+    <price>239.99</price>
+    <qty>0</qty>
+    <reorder>1</reorder>
+  </Table1>
+  <Table1>
+    <pcode>P005</pcode>
+    <barcode>1234578</barcode>
+    <pdesc>Samsung S21 Ultra</pdesc>
+    <bid>1</bid>
+    <cid>2</cid>
+    <price>1899.99</price>
+    <qty>0</qty>
+    <reorder>1</reorder>
+  </Table1>
 </NewDataSet>

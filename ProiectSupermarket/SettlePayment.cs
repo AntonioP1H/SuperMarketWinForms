@@ -16,6 +16,7 @@ namespace ProiectSupermarket
         DBConnect dbcon = new DBConnect();
         SqlDataReader dr;
         Cashier cashier;
+
         public SettlePayment(Cashier cash)
         {
             InitializeComponent();
@@ -89,7 +90,8 @@ namespace ProiectSupermarket
         {
             try
             {
-                if( (double.Parse(txtChange.Text)) < 0 || (txtCash.Text.Equals(""))){
+                if ((double.Parse(txtChange.Text)) < 0 || (txtCash.Text.Equals("")))
+                {
                     MessageBox.Show("Insufficient amount, Please enter the correct amount!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
@@ -98,8 +100,7 @@ namespace ProiectSupermarket
                     for (int i = 0; i < cashier.dgvCash.Rows.Count; i++)
                     {
                         cn.Open();
-                        cm = new SqlCommand("UPDATE tbProduct SET qty = qty - " + int.Parse(cashier.dgvCash.Rows[i].Cells[5].Value.ToString())
-                            + " WHERE pcode = '" + cashier.dgvCash.Rows[i].Cells[2].Value.ToString() + "'", cn);
+                        cm = new SqlCommand("UPDATE tbProduct SET qty = qty - " + int.Parse(cashier.dgvCash.Rows[i].Cells[5].Value.ToString()) + " WHERE pcode = '" + cashier.dgvCash.Rows[i].Cells[2].Value.ToString() + "'", cn);
                         cm.ExecuteNonQuery();
                         cn.Close();
 
@@ -125,7 +126,7 @@ namespace ProiectSupermarket
         {
             try
             {
-                double sale = double.Parse(txtCash.Text);
+                double sale = double.Parse(txtSale.Text);
                 double cash = double.Parse(txtCash.Text);
                 double charge = cash - sale;
                 txtChange.Text = charge.ToString("#,##0.00");
@@ -138,7 +139,7 @@ namespace ProiectSupermarket
 
         private void SettlePayment_KeyDown(object sender, KeyEventArgs e)
         {
-            if(e.KeyCode == Keys.Escape) { this.Dispose(); }
+            if (e.KeyCode == Keys.Escape) { this.Dispose(); }
             else if (e.KeyCode == Keys.Enter) { btnEnter.PerformClick(); }
         }
     }

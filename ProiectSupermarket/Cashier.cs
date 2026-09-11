@@ -11,6 +11,7 @@ namespace ProiectSupermarket
         DBConnect dbcon = new DBConnect();
         public string transno = "";
         string id, price;
+
         public Cashier()
         {
             InitializeComponent();
@@ -130,7 +131,7 @@ namespace ProiectSupermarket
 
                 lblSalesTotal.Text = total.ToString("#,##0.00");
                 lblDiscount.Text = discount.ToString("#,##0.00");
-                GetCartTotal();
+                GetCartTotal(total, discount);
 
                 btnClear.Enabled = hascart;
                 btnSettle.Enabled = hascart;
@@ -142,10 +143,9 @@ namespace ProiectSupermarket
             }
         }
 
-        public void GetCartTotal()
+        public void GetCartTotal(double totalSales, double totalDiscount)
         {
-            double discount = double.Parse(lblDiscount.Text);
-            double sales = double.Parse(lblSalesTotal.Text) - discount;
+            double sales = totalSales;
             double vat = sales * 0.12;
             double vatable = sales - vat;
 
@@ -246,8 +246,8 @@ namespace ProiectSupermarket
                         new SqlParameter("@cashier", lblUsername.Text));
                 }
 
-                txtBarcode.SelectionStart = 0;
-                txtBarcode.SelectionLength = txtBarcode.Text.Length;
+                txtBarcode.Clear();
+                txtBarcode.Focus();
                 LoadCart();
             }
             catch (Exception ex)
@@ -258,25 +258,32 @@ namespace ProiectSupermarket
 
         private void dgvCash_SelectionChanged(object sender, EventArgs e)
         {
-            if (dgvCash.CurrentRow == null) return;
+            if (dgvCash.CurrentRow == null || dgvCash.CurrentRow.Index < 0) return;
+
             int i = dgvCash.CurrentRow.Index;
-            id = dgvCash[1, i].Value.ToString();
-            price = dgvCash[7, i].Value.ToString();
+            id = dgvCash[1, i].Value?.ToString() ?? "";
+            price = dgvCash[7, i].Value?.ToString() ?? "0.00";
         }
 
         private void dgvCash_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
             string colName = dgvCash.Columns[e.ColumnIndex].Name;
-            string cartId = dgvCash.Rows[e.RowIndex].Cells[1].Value.ToString();
-            string pcode = dgvCash.Rows[e.RowIndex].Cells[2].Value.ToString();
+            string cartId = dgvCash.Rows[e.RowIndex].Cells[1].Value?.ToString();
+            string pcode = dgvCash.Rows[e.RowIndex].Cells[2].Value?.ToString();
+
+            int qtyInput;
+            if (!int.TryParse(txtQty.Text, out qtyInput))
+            {
+                qtyInput = 1;
+            }
 
             if (colName == "Delete")
             {
                 if (MessageBox.Show("Remove item from cart?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     dbcon.ExecuteNonQuery("sp_DeleteCartItemById", new SqlParameter("@id", cartId));
-                    MessageBox.Show("Item have been removed from cart", "Remove item", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Item has been removed from cart.", "Remove item", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadCart();
                 }
             }
@@ -286,12 +293,12 @@ namespace ProiectSupermarket
                 int stockQty = dt.Rows.Count > 0 && dt.Rows[0]["qty"] != DBNull.Value ? Convert.ToInt32(dt.Rows[0]["qty"]) : 0;
                 int currentCartQty = Convert.ToInt32(dgvCash.Rows[e.RowIndex].Cells[5].Value);
 
-                if (currentCartQty < stockQty)
+                if ((currentCartQty + qtyInput) <= stockQty)
                 {
                     dbcon.ExecuteNonQuery("sp_UpdateCartQuantityAdd",
                         new SqlParameter("@transno", lblTranNo.Text),
                         new SqlParameter("@pcode", pcode),
-                        new SqlParameter("@addQty", int.Parse(txtQty.Text)));
+                        new SqlParameter("@addQty", qtyInput));
                     LoadCart();
                 }
                 else
@@ -302,17 +309,18 @@ namespace ProiectSupermarket
             else if (colName == "colReduce")
             {
                 int currentCartQty = Convert.ToInt32(dgvCash.Rows[e.RowIndex].Cells[5].Value);
-                if (currentCartQty > 1)
+
+                if ((currentCartQty - qtyInput) >= 1)
                 {
                     dbcon.ExecuteNonQuery("sp_UpdateCartQuantityReduce",
                         new SqlParameter("@transno", lblTranNo.Text),
                         new SqlParameter("@pcode", pcode),
-                        new SqlParameter("@reduceQty", int.Parse(txtQty.Text)));
+                        new SqlParameter("@reduceQty", qtyInput));
                     LoadCart();
                 }
                 else
                 {
-                    MessageBox.Show("Remaining qty on cart is " + currentCartQty + "!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Cannot reduce below 1. Use Delete to remove the item entirely.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }

@@ -17,6 +17,7 @@ namespace ProiectSupermarket
         DBConnect dbcon = new DBConnect();
         SqlDataReader dr;
         CancelOrder cancelOrder;
+
         public Void(CancelOrder cancel)
         {
             InitializeComponent();
@@ -31,36 +32,67 @@ namespace ProiectSupermarket
                 if (txtUsername.Text == cancelOrder.txtCancelBy.Text)
                 {
                     MessageBox.Show("Void and Cancel By can't be the same.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
+
                 string user;
                 cn.Open();
                 cm = new SqlCommand("SELECT * FROM tbUser WHERE username = @username AND password = @password", cn);
                 cm.Parameters.AddWithValue("@username", txtUsername.Text);
                 cm.Parameters.AddWithValue("@password", txtPass.Text);
                 dr = cm.ExecuteReader();
-                dr.Read();
+
                 if (dr.HasRows)
                 {
+                    dr.Read();
                     user = dr["username"].ToString();
                     dr.Close();
                     cn.Close();
+
                     SaveCancelOrder(user);
+
                     if (cancelOrder.cbInventory.Text == "yes")
                     {
-                        dbcon.ExecuteQuery("UPDATE tbProduct SET qty = qty + " + cancelOrder.udCancelQty.Value + "where pcode = '" + cancelOrder.txtPcode.Text + "'");
+                        dbcon.ExecuteQuery("UPDATE tbProduct SET qty = qty + " + cancelOrder.udCancelQty.Value + " WHERE pcode = '" + cancelOrder.txtPcode.Text + "'");
                     }
-                    dbcon.ExecuteQuery("UPDATE tbCart SET qty = qty + " + cancelOrder.udCancelQty.Value + " where id LIKE '" + cancelOrder.txtId.Text + "'");
+
+                    int originalQty = int.Parse(cancelOrder.txtQty.Text);
+                    int cancelQty = (int)cancelOrder.udCancelQty.Value;
+                    int remainingQty = originalQty - cancelQty;
+
+                    if (remainingQty > 0)
+                    {
+                        double originalDisc = double.Parse(cancelOrder.txtDisc.Text);
+                        double originalTotal = double.Parse(cancelOrder.txtTotal.Text);
+
+                        double newDisc = (originalDisc / originalQty) * remainingQty;
+                        double newTotal = (originalTotal / originalQty) * remainingQty;
+
+                        dbcon.ExecuteQuery("UPDATE tbCart SET qty = " + remainingQty + ", disc = " + newDisc + ", total = " + newTotal + " WHERE id = '" + cancelOrder.txtId.Text + "'");
+                    }
+                    else
+                    {
+                        dbcon.ExecuteQuery("UPDATE tbCart SET qty = 0, disc = 0, total = 0, status = 'Cancelled' WHERE id = '" + cancelOrder.txtId.Text + "'");
+                    }
+
                     MessageBox.Show("Order transaction successfully cancelled!", "Cancel Order", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.Dispose();
                     cancelOrder.ReloadSoldList();
                     cancelOrder.Dispose();
                 }
-                dr.Close();
-                cn.Close();
+                else
+                {
+                    dr.Close();
+                    cn.Close();
+                    MessageBox.Show("Invalid Username or Password for authorization!", "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
             catch (Exception ex)
             {
-                cn.Close();
+                if (cn.State == ConnectionState.Open)
+                {
+                    cn.Close();
+                }
                 MessageBox.Show(ex.Message);
             }
         }
@@ -69,7 +101,8 @@ namespace ProiectSupermarket
         {
             try
             {
-                cm = new SqlCommand("insert into tbCancel (transno, pcode, price, qty,total, sdate, voidby, cancelledby, reason, action) values (@transno, @pcode, @price, @qty, @total, @sdate, @voidby, @cancelledby, @reason, @action)", cn);
+                cn.Open();
+                cm = new SqlCommand("insert into tbCancel (transno, pcode, price, qty, total, sdate, voidby, cancelledby, reason, action) values (@transno, @pcode, @price, @qty, @total, @sdate, @voidby, @cancelledby, @reason, @action)", cn);
 
                 cm.Parameters.AddWithValue("@transno", cancelOrder.txtTransno.Text);
                 cm.Parameters.AddWithValue("@pcode", cancelOrder.txtPcode.Text);
@@ -86,7 +119,10 @@ namespace ProiectSupermarket
             }
             catch (Exception)
             {
-
+                if (cn.State == ConnectionState.Open)
+                {
+                    cn.Close();
+                }
                 throw;
             }
         }

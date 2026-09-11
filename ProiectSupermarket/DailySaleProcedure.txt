@@ -1,0 +1,44 @@
+ALTER PROCEDURE sp_GetDailySales
+    @datefrom DATE,
+    @dateto DATE,
+    @cashier VARCHAR(50)
+AS
+BEGIN
+    IF @cashier = 'All Cashiers'
+    BEGIN
+        SELECT c.id, c.transno, p.pcode, p.pdesc, c.price, 
+               (c.qty - ISNULL(cncl.qty, 0)) AS qty, 
+               c.disc, 
+               ((c.qty - ISNULL(cncl.qty, 0)) * c.price - c.disc) AS total, 
+               c.sdate, c.cashier 
+        FROM tbCart c 
+        INNER JOIN tbProduct p ON c.pcode = p.pcode 
+        LEFT JOIN (
+            SELECT transno, pcode, SUM(qty) AS qty 
+            FROM tbCancel 
+            GROUP BY transno, pcode
+        ) cncl ON c.transno = cncl.transno AND c.pcode = cncl.pcode
+        WHERE c.status = 'Sold' 
+          AND CAST(c.sdate AS DATE) BETWEEN @datefrom AND @dateto
+          AND (c.qty - ISNULL(cncl.qty, 0)) > 0;
+    END
+    ELSE
+    BEGIN
+        SELECT c.id, c.transno, p.pcode, p.pdesc, c.price, 
+               (c.qty - ISNULL(cncl.qty, 0)) AS qty, 
+               c.disc, 
+               ((c.qty - ISNULL(cncl.qty, 0)) * c.price - c.disc) AS total, 
+               c.sdate, c.cashier 
+        FROM tbCart c 
+        INNER JOIN tbProduct p ON c.pcode = p.pcode 
+        LEFT JOIN (
+            SELECT transno, pcode, SUM(qty) AS qty 
+            FROM tbCancel 
+            GROUP BY transno, pcode
+        ) cncl ON c.transno = cncl.transno AND c.pcode = cncl.pcode
+        WHERE c.status = 'Sold' 
+          AND c.cashier = @cashier 
+          AND CAST(c.sdate AS DATE) BETWEEN @datefrom AND @dateto
+          AND (c.qty - ISNULL(cncl.qty, 0)) > 0;
+    END
+END
