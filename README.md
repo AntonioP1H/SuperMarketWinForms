@@ -52,7 +52,7 @@ The application relies on a relational database schema featuring:
 ### Installation & Setup
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/AntonioP1H/SuperMarketWinForms](https://github.com/AntonioP1H/SuperMarketWinForms)
+   git clone https://github.com/AntonioP1H/SuperMarketWinForms
 
 2. Open the solution file (ProiectSupermarket.sln) in Visual Studio.
 
